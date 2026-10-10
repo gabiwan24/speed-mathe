@@ -108,6 +108,8 @@ strong { font-weight: var(--weight-medium); }
 /* ONE button spec: same height, same label (Inter 500, --text-base, centred) for every labelled button; only colour differs. */
 :root { --btn-h: clamp(2.5rem, 5.8dvh, 3rem); }
 .btn-big { width: 100%; height: var(--btn-h); }
+/* Second allowed label size: the call to action (Los, Nochmal, Weiter) is larger; height stays the same. */
+.btn-primary { font-size: var(--text-lg); }
 /* Second row of actions: two or three smaller buttons side by side. */
 .actions-row { display: flex; gap: var(--space-2); }
 .actions-row > * { flex: 1; min-width: 0; }

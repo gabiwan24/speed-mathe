@@ -61,3 +61,4 @@
 2026-10-11 – Buttons get slightly rounded outer corners (--radius-btn 4px: .btn, segmented control + marker, chips, keys, mode tiles); everything else stays sharp – owner decision, also in design system
 2026-10-11 – Button radius raised from 2px to 4px – owner decision
 2026-10-11 – One button spec: same height (--btn-h), label Inter 500 --text-base centred, no big/small variants, no mono/left-aligned labels, chips as equal-width grid – owner: too many different buttons
+2026-10-11 – Two button label sizes allowed: --text-base for all, --text-lg for the primary CTA (Los) only; same height – owner decision

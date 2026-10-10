@@ -554,7 +554,8 @@ function scaleSvg(
     }
   });
 
-  return `<svg class="scale-svg" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
+  const travelling = fromY !== null && markers.some((m) => m.last && Math.abs(fromY! - m.y) > 0.5);
+  return `<svg class="scale-svg${travelling ? ' has-travel' : ''}" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
 }
 
 function updateScoreFilter(patch: Partial<RoundConfig>) {

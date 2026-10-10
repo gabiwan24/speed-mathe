@@ -29,3 +29,4 @@
 2026-10-10 – Highscore dropdown lists only combinations with rounds (unplayed hidden, not greyed); a mode without rounds hides the dropdown; scale centred – owner request.
 2026-10-10 – Scale lines never bend: a line closer than 36 px to the one above moves down itself (proportional otherwise); "Letzter Versuch" left of the bar in two lines; 10-second extra shortened to "18/20" – owner mockup feedback, fits a phone width.
 2026-10-10 – After a round the Highscore scale animates once: new value appears, then the "Letzter Versuch" marker travels from the previous attempt to the new one – owner request: see at a glance whether it got better or worse.
+2026-10-10 – Animation order: marker travels first, new value appears after it arrives – owner request.

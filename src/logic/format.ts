@@ -11,3 +11,11 @@ export function formatMs(ms: number): string {
   const { value, unit } = formatTime(ms);
   return `${value} ${unit}`;
 }
+
+/** Stopwatch style for the Highscore scale (owner mockup): "00:34,12" = minutes:seconds,hundredths. */
+export function formatClock(ms: number): string {
+  const cs = Math.round(Math.max(0, ms) / 10);
+  const min = Math.floor(cs / 6000);
+  const sec = Math.floor((cs % 6000) / 100);
+  return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')},${String(cs % 100).padStart(2, '0')}`;
+}

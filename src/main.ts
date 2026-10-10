@@ -1,7 +1,8 @@
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
-import { formatMs, formatTime } from './logic/format';
+import { formatClock, formatMs, formatTime } from './logic/format';
+import { layoutScale } from './logic/scale';
 import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
 import { addResults, focusFacts, roundKnackpunkte } from './logic/stats';
@@ -351,7 +352,7 @@ function finishRound() {
     const added = addToHistory(list, entry, s.cfg.variant);
     data.history[key] = added.list;
     rank = added.rank;
-    if (rank) latest = { key, date: entry.date };
+    data.last[key] = entry;
   }
   save(data);
 
@@ -426,8 +427,6 @@ $('menu').addEventListener('click', () => {
 // ---------- highscores ----------
 
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-/** The most recent round that made a top-20 list, highlighted on the Highscore page. */
-let latest: { key: string; date: string } | null = null;
 let scoreFilter: RoundConfig = { ...data.settings };
 
 /** Written out, no abbreviations: "10. Oktober 2026, 17:05 Uhr". Early entries only have a day. */
@@ -471,27 +470,55 @@ function renderScores() {
 
   const key = recordKey(f);
   const list = data.history[key] ?? [];
-  const timeline = $('timeline');
+  const last = data.last[key];
+  const box = $('scale');
   if (!list.length) {
-    timeline.innerHTML = '<li class="timeline-empty">Noch keine Runde mit dieser Einstellung.</li>';
+    box.innerHTML = '<p class="scale-empty">Noch keine Runde mit dieser Einstellung.</p>';
     return;
   }
-  // Bars compare speed: the fastest round fills the bar, slower rounds are shorter.
-  const fastest = Math.min(...list.map((r) => r.totalMs));
-  const entries = list.map((r, i) => ({ r, rank: i + 1 })).sort((a, b) => b.r.date.localeCompare(a.r.date));
-  timeline.innerHTML = entries
-    .map(({ r, rank }, i) => {
-      const isLatest = latest?.key === key && latest.date === r.date;
-      const cls = ['entry', rank === 1 ? 'best' : '', isLatest ? 'latest' : ''].join(' ').trim();
-      const width = r.totalMs > 0 ? fastest / r.totalMs : 1;
-      const value = `${f.variant === 'limit' ? `${r.inTime} von ${r.count} rechtzeitig · ` : ''}${formatMs(r.totalMs)}`;
-      return `<li class="${cls}" style="--i:${i}">
-        <div class="entry-head"><span class="entry-date">${formatDate(r.date)}</span><span class="entry-rank">${rank === 1 ? 'Rekord' : `Platz ${rank}`}</span></div>
-        <div class="entry-bar"><div class="entry-fill" style="--w:${width.toFixed(4)}"></div></div>
-        <div class="entry-value">${isLatest ? '<span class="entry-new">Neu</span>' : ''}${value}</div>
-      </li>`;
-    })
-    .join('');
+  box.innerHTML = scaleSvg(list, last, f.variant === 'limit');
+}
+
+// Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width).
+const SVG_W = 340;
+const BAR_X = 16;
+const BAR_W = 48;
+const KNEE_X = BAR_X + BAR_W + 18;
+const TICK_END = BAR_X + BAR_W + 44;
+const NUM_X = TICK_END + 12;
+const TIME_X = NUM_X + 40;
+
+/** Vertical scale as in the owner's mockup: height = time, a line per place, coloured bands between. */
+function scaleSvg(list: BestRound[], last: BestRound | undefined, limit: boolean): string {
+  const lastInList = !!last && list.some((r) => r.date === last.date);
+  const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: i + 1 as number | null, last: lastInList && r.date === last!.date }));
+  if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
+  const { height, markers } = layoutScale(rounds);
+
+  const parts: string[] = [];
+  // Empty top = room to improve; below each place a band in the next colour, the last band runs to the bottom.
+  parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${height}" class="band-empty"/>`);
+  const ranked = markers.filter((m) => m.rank !== null);
+  ranked.forEach((m, k) => {
+    const end = ranked[k + 1]?.y ?? height;
+    parts.push(`<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(end - m.y).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
+  });
+
+  markers.forEach((m, i) => {
+    const r = rounds[i].r;
+    const y = m.y.toFixed(1);
+    const ly = m.labelY.toFixed(1);
+    const bent = m.labelY - m.y > 0.5;
+    const d = bent ? `M${BAR_X} ${y}H${KNEE_X}L${KNEE_X + 14} ${ly}H${TICK_END}` : `M${BAR_X} ${y}H${TICK_END}`;
+    const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
+    parts.push(`<path d="${d}" class="${cls}"/>`);
+    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${ly}" class="tick-rank">${m.rank}</text>`);
+    const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime} von ${r.count}</tspan>` : '';
+    parts.push(`<text x="${TIME_X}" y="${ly}" class="tick-time">${formatClock(r.totalMs)}${extra}</text>`);
+    if (m.last) parts.push(`<text x="${NUM_X}" y="${(m.labelY + 26).toFixed(1)}" class="tick-last">Letzter Versuch</text>`);
+  });
+
+  return `<svg class="scale-svg" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
 }
 
 function updateScoreFilter(patch: Partial<RoundConfig>) {

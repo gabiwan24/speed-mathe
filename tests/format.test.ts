@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatMs, formatTime } from '../src/logic/format';
+import { formatClock, formatMs, formatTime } from '../src/logic/format';
 
 describe('formatMs', () => {
   it.each([
@@ -19,5 +19,17 @@ describe('formatMs', () => {
   it('formatTime splits value and unit for big-number displays', () => {
     expect(formatTime(5000)).toEqual({ value: '5,0', unit: 'Sekunden' });
     expect(formatTime(65_300)).toEqual({ value: '1:05,3', unit: 'Minuten' });
+  });
+});
+
+describe('formatClock', () => {
+  it.each([
+    [34_120, '00:34,12'],
+    [0, '00:00,00'],
+    [5, '00:00,01'],
+    [65_300, '01:05,30'],
+    [59_996, '01:00,00'],
+  ])('%i ms → %s', (ms, text) => {
+    expect(formatClock(ms)).toBe(text);
   });
 });

@@ -6,6 +6,8 @@ export interface SaveData {
   settings: RoundConfig;
   /** recordKey → best rounds, best first (max HISTORY_SIZE). history[key][0] is the record. */
   history: Record<string, BestRound[]>;
+  /** recordKey → most recent finished round, shown as "Letzter Versuch" even outside the best 20. */
+  last: Record<string, BestRound>;
   stats: FactStats;
 }
 
@@ -15,6 +17,7 @@ export const defaults = (): SaveData => ({
   v: 1,
   settings: { mode: 'love', booster: false, length: 20, variant: 'limit' },
   history: {},
+  last: {},
   stats: {},
 });
 
@@ -31,6 +34,7 @@ export function load(storage: Pick<Storage, 'getItem'> | undefined = globalThis.
       settings: { ...base.settings, ...data.settings },
       // Early builds stored only the single record per setting; it becomes the first history entry.
       history: data.history ?? Object.fromEntries(Object.entries(data.records ?? {}).map(([k, r]) => [k, [r]])),
+      last: data.last ?? {},
       stats: data.stats ?? {},
     };
   } catch {

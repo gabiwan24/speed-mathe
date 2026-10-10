@@ -10,12 +10,12 @@ v1 live: https://gabiwan24.github.io/speed-mathe/ – wartet auf Test mit dem Ki
 - Falsche Antwort: Feld wackelt, neu eingeben, Uhr läuft weiter; OK-Taste
 - 3-2-1-Countdown, Pause bei App-Wechsel, Beenden mit Rückfrage
 - Rekorde je Modus/Booster/Länge/Variante, „Neuer Rekord!“ mit Abstand
-- Highscore-Seite: beste 20 Runden je Einstellung als Zeitleiste, „Platz n“ im Ergebnis
+- Highscore-Seite: beste 20 Runden je Einstellung als senkrechte Skala (Höhe = Zeit), „Letzter Versuch“, „Platz n“ im Ergebnis
 - Knackpunkte je Runde + „Knackpunkte üben“ (Übungsrunde, kein Rekord)
 - PWA (installierbar, offline), Sprachtest unter /sprachtest.html
 - Übungsrunde ohne Zeitanzeige (nur 10-Sekunden-Leiste)
 - Deploy: push auf main → GitHub Pages
-- 92 Unit-Tests, Build-Check `scripts/verify-build.mjs`
+- 105 Unit-Tests, Build-Check `scripts/verify-build.mjs`
 
 ## Next
 1. Am Handy https://gabiwan24.github.io/speed-mathe/ öffnen, App installieren

@@ -117,3 +117,11 @@ html.scroll-lock { overflow: hidden; }       /* modal/drawer open: page stops sc
 
 ::selection { background: var(--accent); color: var(--accent-ink); }   /* text selection in palette colors, not OS blue */
 :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Project tokens (speed-mathe): Highscore scale bands from the owner's mockup, same in both themes. */
+:root {
+  --band-1: #db45f0;
+  --band-2: #4a6af0;
+  --band-3: #55f04a;
+  --band-4: #f0d54a;
+}

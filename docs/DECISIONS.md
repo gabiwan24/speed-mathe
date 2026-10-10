@@ -19,3 +19,6 @@
 2026-10-10 – Public repo gabiwan24/speed-mathe, GitHub Pages via Actions – owner request, fixed URL for the phone.
 2026-10-10 – Highscore page keeps the best 20 rounds per setting, shown chronologically (newest on top) with speed bars – owner request: see the development; replaces the single record (migrated on load).
 2026-10-10 – Mode buttons read "+ Plus rechnen" and "− Minus rechnen" – owner request.
+2026-10-10 – Highscores drawn as a vertical scale per owner mockup (height = time, place lines, 4 coloured bands, grey headroom) instead of cards – owner design overrides the single-accent design system here.
+2026-10-10 – Scale shows times as 00:34,12 (owner mockup); everywhere else units stay written out.
+2026-10-10 – Last attempt per setting stored separately and shown as "Letzter Versuch" (dashed when outside the best 20) – the child sees where today's round landed.

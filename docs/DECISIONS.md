@@ -47,3 +47,4 @@
 2026-10-10 – Design system: active option among peers = yellow signal, inactive recedes; black-vs-white pairs are forbidden (unclear which is active) – owner request.
 2026-10-10 – Design system: new call-to-action colour --cta (electric blue; dark theme lighter blue with black text) replaces yellow as the primary button, because yellow now marks active states – owner request.
 2026-10-10 – Two-line tiles centre their whole text block vertically – owner request.
+2026-10-10 – "Letzter Versuch" is one line and highlighted (yellow chip = active signal, heavy marker line, bold place/time) – owner request.

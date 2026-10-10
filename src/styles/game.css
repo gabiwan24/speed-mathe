@@ -310,7 +310,7 @@ strong { font-weight: var(--weight-medium); }
 .rank-line { margin: 0; font-size: var(--text-lg); color: var(--text); }
 
 .scores-head { display: flex; align-items: center; gap: var(--space-2); margin-left: calc(-1 * var(--space-2)); }
-.scores-head h1 { font-size: clamp(1.5rem, 4.4dvh, var(--text-3xl)); }
+.scores-head h1 { font-size: var(--text-2xl); }
 #scores.page { grid-template-rows: auto auto minmax(0, 1fr); }
 
 .filters { display: grid; gap: var(--space-2); }
@@ -348,7 +348,7 @@ strong { font-weight: var(--weight-medium); }
 .scale-svg .tick-rank { font: var(--weight-medium) 1.75rem var(--font-sans); }
 .scale-svg .tick-time { font: var(--weight-regular) var(--text-md) var(--font-mono); }
 .scale-svg .tick-extra { fill: var(--text-muted); font-size: var(--text-sm); }
-.scale-svg .tick-last { font: var(--weight-medium) var(--text-sm) var(--font-sans); }
+.scale-svg .tick-last { font: var(--weight-medium) var(--text-sm) var(--font-sans); fill: var(--accent-ink); }
 .scale-empty { color: var(--text-muted); margin: 0; }
 
 /* Options dropdown on the Highscore page: custom panel instead of the native select popup. */
@@ -427,7 +427,10 @@ strong { font-weight: var(--weight-medium); }
 @keyframes draw-line {
   from { transform: scaleX(0); }
 }
-.scale-svg .tick-marker { stroke-width: 3; }
+.scale-svg .tick-marker { stroke-width: 4; }
+/* The last attempt stands out: yellow chip (= active signal) with black text and edge, bold place and time. */
+.scale-svg .last-chip { fill: var(--accent); stroke: var(--accent-edge); stroke-width: 1; }
+.scale-svg .tick-time.latest { font-weight: var(--weight-medium); }
 .scale-svg .last-marker.travel { animation: travel var(--dur-highlight) var(--ease-fluid) var(--dur-view) both; }
 /* With a travelling marker the value waits until the marker has arrived. */
 .scale-svg.has-travel .is-new { animation-delay: calc(var(--dur-view) + var(--dur-highlight)); }
@@ -470,4 +473,4 @@ strong { font-weight: var(--weight-medium); }
 .stars-why { list-style: none; margin: var(--space-1-5) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-half) var(--space-3); }
 .stars-why li { display: flex; gap: var(--space-1); font-size: var(--text-xs); color: var(--text-muted); }
 .stars-plus { font-family: var(--font-mono); font-weight: var(--weight-medium); color: var(--text); }
-.stars-total { margin-left: auto; display: flex; align-items: center; gap: var(--space-1-5); font: var(--weight-medium) var(--text-md) var(--font-sans); }
+.stars-total { margin-left: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-1-5); font: var(--weight-medium) var(--text-md) var(--font-sans); }

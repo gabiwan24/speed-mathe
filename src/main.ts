@@ -541,6 +541,8 @@ const LAST_END = BAR_X - 8;
 const TICK_END = BAR_X + BAR_W + 20;
 const NUM_X = TICK_END + 6;
 const TIME_X = NUM_X + 36;
+const CHIP_W = 112;
+const CHIP_H = 24;
 
 /** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
 function scaleSvg(
@@ -585,11 +587,12 @@ function scaleSvg(
     const r = rounds[i].r;
     const y = m.y.toFixed(1);
     const fresh = anim && m.last ? ' is-new' : '';
+    const latest = m.last ? ' latest' : '';
     const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
     // Slower rounds fade out: the whole row (line, place, time) gets paler with the time.
     const fade = m.fade < 1 ? ` style="opacity:${m.fade.toFixed(2)}"` : '';
     parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"${fade}/>`);
-    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}"${fade}>${m.rank}</text>`);
+    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}${latest}"${fade}>${m.rank}</text>`);
     // Right of the centred bar there is only room for the time, so the 10-second result goes below it.
     // Below the time when rows have room, otherwise right behind it (dense scale on a small screen).
     const extra = limit
@@ -597,17 +600,18 @@ function scaleSvg(
         ? `<tspan class="tick-extra" dx="4">${r.inTime}/${r.count}</tspan>`
         : `<tspan class="tick-extra" x="${TIME_X}" dy="16">${r.inTime}/${r.count}</tspan>`
       : '';
-    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
+    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}${latest}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
     if (m.last) {
       // The marker: label left of the bar plus a line across it. After a round it travels from the
       // previous attempt's height to the new one – down means less time (better), up means worse.
       const travel = fromY !== null && Math.abs(fromY - m.y) > 0.5;
       const style = travel ? ` style="--from:${(fromY! - m.y).toFixed(1)}px"` : '';
+      // One line, highlighted: yellow chip with the label left of the bar, a heavy line across the bar.
       parts.push(
         `<g class="last-marker${travel ? ' travel' : ''}"${style}>` +
-          `<path d="M${LAST_END + 4} ${y}H${BAR_X + BAR_W}" class="tick tick-marker"/>` +
-          // Two short lines so the label fits left of the bar on a phone.
-          `<text x="${LAST_END}" y="${y}" class="tick-last" text-anchor="end"><tspan x="${LAST_END}" dy="-0.6em">Letzter</tspan><tspan x="${LAST_END}" dy="1.2em">Versuch</tspan></text>` +
+          `<path d="M${LAST_END} ${y}H${BAR_X + BAR_W}" class="tick tick-marker"/>` +
+          `<rect x="${LAST_END - CHIP_W}" y="${(m.y - CHIP_H / 2).toFixed(1)}" width="${CHIP_W}" height="${CHIP_H}" class="last-chip"/>` +
+          `<text x="${LAST_END - CHIP_W / 2}" y="${y}" class="tick-last" text-anchor="middle">Letzter Versuch</text>` +
           `</g>`,
       );
     }

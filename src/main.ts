@@ -512,7 +512,6 @@ $('scores-modes').innerHTML = modeIds
       `<button type="button" class="chip" role="radio" data-score-mode="${m}">${MODES[m].label}</button>`,
   )
   .join('');
-addSlidingMarker($('scores-modes'), '[aria-checked="true"]');
 
 /** Only combinations that already have rounds; unplayed ones are not shown at all (owner rule). */
 const playedOptions = (mode: Mode) => optionsFor(mode).filter((c) => data.history[recordKey(c)]?.length);
@@ -738,7 +737,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.querySelectorAll<HTMLElement>('#home .segmented').forEach((g) => addSlidingMarker(g, '[aria-pressed="true"]'));
-addSlidingMarker($('home').querySelector<HTMLElement>('.modes')!, '.mode[aria-checked="true"]');
 void document.fonts?.ready.then(() => syncMarkers(false));
 
 renderHome();

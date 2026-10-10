@@ -82,7 +82,7 @@ td.num { font-family: var(--font-mono); text-align: right; }
 td.transcript { color: var(--text-muted); word-break: break-word; }
 
 /* Sliding selection marker (design-system components.css): shape and colour come from the component. */
-.sel-marker { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; transition: transform var(--dur-view) var(--ease-fluid), width var(--dur-view) var(--ease-fluid), height var(--dur-view) var(--ease-fluid); }
+.sel-marker { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; transition: transform var(--dur-base) var(--ease-out), width var(--dur-base) var(--ease-out), height var(--dur-base) var(--ease-out); }   /* short UI motion: crisp */
 .sel-marker.placed { visibility: visible; }
 .sel-marker.no-anim { transition: none; }
 

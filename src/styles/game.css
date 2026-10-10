@@ -310,7 +310,7 @@ strong { font-weight: var(--weight-medium); }
 .chip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* Highscore scale (owner mockup): height = time, a line per place, coloured bands between. */
-.scale { padding: var(--space-2) 0; }
+.scale { display: flex; justify-content: center; padding: var(--space-2) 0; }
 .scale-svg { display: block; max-width: 100%; overflow: visible; }
 .scale-svg .band-empty { fill: var(--border); }
 .scale-svg .band-1 { fill: var(--band-1); }
@@ -383,7 +383,6 @@ strong { font-weight: var(--weight-medium); }
   transition: background var(--dur-fast) var(--ease-out);
 }
 .dropdown-item:hover { background: var(--surface-2); }
-.dropdown-item.empty { color: var(--text-muted); }
 .dropdown-item::before {
   content: "";
   position: absolute;

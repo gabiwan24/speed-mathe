@@ -26,3 +26,4 @@
 2026-10-10 – Mode "Gemischt" renamed "Bunt gemischt" everywhere – owner request.
 2026-10-10 – Highscore page: only the 4 mode buttons visible, length/variant/booster in one custom dropdown listing all combinations (empty ones muted) – owner request, calmer page.
 2026-10-10 – Highscore page always opens on the last played setting (persisted lastCfg); result screen gets a Highscores button – owner: no choosing after a game.
+2026-10-10 – Highscore dropdown lists only combinations with rounds (unplayed hidden, not greyed); a mode without rounds hides the dropdown; scale centred – owner request.

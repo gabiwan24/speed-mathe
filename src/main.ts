@@ -450,30 +450,37 @@ $('scores-modes').innerHTML = modeIds
   )
   .join('');
 
+/** Only combinations that already have rounds; unplayed ones are not shown at all (owner rule). */
+const playedOptions = (mode: Mode) => optionsFor(mode).filter((c) => data.history[recordKey(c)]?.length);
+
 function renderScores() {
-  const f = withBooster(scoreFilter);
+  let f = withBooster(scoreFilter);
+  const options = playedOptions(f.mode);
+  // Switching to a mode whose current combination was never played jumps to the one played last.
+  if (options.length && !options.some((c) => recordKey(c) === recordKey(f))) {
+    const lastPlayed = (c: RoundConfig) => data.last[recordKey(c)]?.date ?? '';
+    f = scoreFilter = [...options].sort((a, b) => lastPlayed(b).localeCompare(lastPlayed(a)))[0];
+  }
 
   document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
     b.setAttribute('aria-checked', String(b.dataset.scoreMode === f.mode));
   });
+  $('scores-options').hidden = !options.length;
   $('scores-options-label').textContent = optionLabel(f);
-  $('scores-options-menu').innerHTML = optionsFor(f.mode)
+  $('scores-options-menu').innerHTML = options
     .map((c, i) => {
       const selected = recordKey(c) === recordKey(f);
-      const empty = !data.history[recordKey(c)]?.length;
-      return `<li><button type="button" class="dropdown-item${empty ? ' empty' : ''}" role="option" aria-selected="${selected}" data-option="${i}">${optionLabel(c)}</button></li>`;
+      return `<li><button type="button" class="dropdown-item" role="option" aria-selected="${selected}" data-option="${i}">${optionLabel(c)}</button></li>`;
     })
     .join('');
 
-  const key = recordKey(f);
-  const list = data.history[key] ?? [];
-  const last = data.last[key];
   const box = $('scale');
-  if (!list.length) {
-    box.innerHTML = '<p class="scale-empty">Noch keine Runde mit dieser Einstellung.</p>';
+  if (!options.length) {
+    box.innerHTML = '<p class="scale-empty">Noch keine Runde in diesem Modus.</p>';
     return;
   }
-  box.innerHTML = scaleSvg(list, last, f.variant === 'limit');
+  const key = recordKey(f);
+  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit');
 }
 
 // Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width).
@@ -551,7 +558,7 @@ $('scores-options-btn').addEventListener('click', () => setDropdown(!dropdown.cl
 $('scores-options-menu').addEventListener('click', (e) => {
   const item = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-option]');
   if (!item) return;
-  const c = optionsFor(withBooster(scoreFilter).mode)[Number(item.dataset.option)];
+  const c = playedOptions(withBooster(scoreFilter).mode)[Number(item.dataset.option)];
   setDropdown(false);
   updateScoreFilter(c);
 });

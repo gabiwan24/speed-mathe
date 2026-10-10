@@ -8,10 +8,8 @@ export interface ScaleInput {
 }
 
 export interface ScaleMarker extends ScaleInput {
-  /** Where the marker line hits the bar. */
+  /** Height of the straight marker line and its labels. */
   y: number;
-  /** Where its label sits; pushed down when markers are too close to read. */
-  labelY: number;
 }
 
 export interface ScaleLayout {
@@ -24,8 +22,8 @@ export const SCALE = {
   bottom: 96,
   minSpan: 320,
   perEntry: 40,
-  labelGap: 36,
-  lastExtra: 24,
+  /** Minimum distance between two lines so their labels stay readable. */
+  gap: 36,
 };
 
 export function layoutScale(items: ScaleInput[]): ScaleLayout {
@@ -35,7 +33,7 @@ export function layoutScale(items: ScaleInput[]): ScaleLayout {
   const unranked = items.filter((i) => i.rank === null);
 
   // Rank order and height must agree. In the 10-second variant a better rank can have
-  // a longer time (more tasks in time wins), so positions are made monotone along the ranks.
+  // a longer time (more tasks in time wins), so values are made monotone along the ranks.
   const values: number[] = [];
   for (const item of ranked) values.push(Math.max(item.ms, values.at(-1) ?? -Infinity));
   // A last attempt outside the best 20 ranks below all of them.
@@ -47,15 +45,15 @@ export function layoutScale(items: ScaleInput[]): ScaleLayout {
   const vmax = Math.max(...values);
   const span = Math.max(SCALE.minSpan, ordered.length * SCALE.perEntry);
 
+  // Proportional to time, but lines never closer than SCALE.gap (owner rule: no bent lines,
+  // so a crowded line moves down itself instead of only its label).
   const markers: ScaleMarker[] = [];
   ordered.forEach((item, i) => {
-    const y = SCALE.top + (vmax === vmin ? 0 : ((values[i] - vmin) / (vmax - vmin)) * span);
+    const linear = SCALE.top + (vmax === vmin ? 0 : ((values[i] - vmin) / (vmax - vmin)) * span);
     const prev = markers.at(-1);
-    const minLabel = prev ? prev.labelY + SCALE.labelGap + (prev.last ? SCALE.lastExtra : 0) : -Infinity;
-    markers.push({ ...item, y, labelY: Math.max(y, minLabel) });
+    markers.push({ ...item, y: prev ? Math.max(linear, prev.y + SCALE.gap) : linear });
   });
 
-  const lowest = markers.at(-1)!;
-  const height = Math.max(SCALE.top + span, lowest.labelY + (lowest.last ? SCALE.lastExtra : 0)) + SCALE.bottom;
+  const height = Math.max(SCALE.top + span, markers.at(-1)!.y) + SCALE.bottom;
   return { height, markers };
 }

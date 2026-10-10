@@ -484,18 +484,19 @@ function renderScores() {
 }
 
 // Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width).
-const SVG_W = 340;
-const BAR_X = 16;
-const BAR_W = 48;
-const KNEE_X = BAR_X + BAR_W + 18;
-const TICK_END = BAR_X + BAR_W + 44;
-const NUM_X = TICK_END + 12;
-const TIME_X = NUM_X + 40;
+const SVG_W = 330;
+/** "Letzter Versuch" sits left of the bar, right-aligned to this x (owner mockup). */
+const LAST_END = 60;
+const BAR_X = 68;
+const BAR_W = 36;
+const TICK_END = BAR_X + BAR_W + 24;
+const NUM_X = TICK_END + 8;
+const TIME_X = NUM_X + 36;
 
-/** Vertical scale as in the owner's mockup: height = time, a line per place, coloured bands between. */
+/** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
 function scaleSvg(list: BestRound[], last: BestRound | undefined, limit: boolean): string {
   const lastInList = !!last && list.some((r) => r.date === last.date);
-  const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: i + 1 as number | null, last: lastInList && r.date === last!.date }));
+  const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: (i + 1) as number | null, last: lastInList && r.date === last!.date }));
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
   const { height, markers } = layoutScale(rounds);
 
@@ -511,15 +512,18 @@ function scaleSvg(list: BestRound[], last: BestRound | undefined, limit: boolean
   markers.forEach((m, i) => {
     const r = rounds[i].r;
     const y = m.y.toFixed(1);
-    const ly = m.labelY.toFixed(1);
-    const bent = m.labelY - m.y > 0.5;
-    const d = bent ? `M${BAR_X} ${y}H${KNEE_X}L${KNEE_X + 14} ${ly}H${TICK_END}` : `M${BAR_X} ${y}H${TICK_END}`;
+    // The last attempt's line reaches out to its label on the left.
+    const from = m.last ? LAST_END + 4 : BAR_X;
     const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
-    parts.push(`<path d="${d}" class="${cls}"/>`);
-    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${ly}" class="tick-rank">${m.rank}</text>`);
-    const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime} von ${r.count}</tspan>` : '';
-    parts.push(`<text x="${TIME_X}" y="${ly}" class="tick-time">${formatClock(r.totalMs)}${extra}</text>`);
-    if (m.last) parts.push(`<text x="${NUM_X}" y="${(m.labelY + 26).toFixed(1)}" class="tick-last">Letzter Versuch</text>`);
+    parts.push(`<path d="M${from} ${y}H${TICK_END}" class="${cls}"/>`);
+    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank">${m.rank}</text>`);
+    const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime}/${r.count}</tspan>` : '';
+    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time">${formatClock(r.totalMs)}${extra}</text>`);
+    // Two short lines so the label fits left of the bar on a phone.
+    if (m.last)
+      parts.push(
+        `<text x="${LAST_END}" y="${y}" class="tick-last" text-anchor="end"><tspan x="${LAST_END}" dy="-0.6em">Letzter</tspan><tspan x="${LAST_END}" dy="1.2em">Versuch</tspan></text>`,
+      );
   });
 
   return `<svg class="scale-svg" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;

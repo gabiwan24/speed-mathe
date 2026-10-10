@@ -1,11 +1,11 @@
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
-import { formatClock, formatMs, formatTime } from './logic/format';
+import { formatMs, formatTime } from './logic/format';
 import { addSlidingMarker, syncMarkers } from './markers';
 import { hideAnimated, showAnimated } from './motion.js';
 import { ballPlan, ballShades, type BallGroup } from './logic/balls';
-import { layoutScale, SCALE } from './logic/scale';
+import { layoutTrack, spreadLabels } from './logic/scale';
 import { starsFor, starsText } from './logic/stars';
 import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
@@ -548,101 +548,156 @@ function renderScores() {
   // Only the first look at a freshly played setting animates; later filter changes render still.
   const anim = scoreAnim?.key === key ? scoreAnim : null;
   if (anim) scoreAnim = null;
-  // The scale gets exactly the height that is left on screen, so the page never scrolls.
-  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit', anim, Math.floor(box.clientHeight));
+  // Hero (fixed height, so the track never jumps) + track, which gets exactly the height that is left on screen.
+  box.innerHTML = '<div class="hs-hero" id="hs-hero"></div><div class="hs-track" id="hs-track"></div>';
+  buildTrack(key, data.history[key], data.last[key], f.variant === 'limit', anim);
 }
 
 /** Set when a round finishes: the scale then shows the new value appearing and the marker travelling. */
 let scoreAnim: { key: string; prev: BestRound | undefined } | null = null;
 
-// Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width and is centred on the
-// page, so the bar – centred inside the SVG – stands in the middle of the screen, owner rule).
-const SVG_W = 330;
-const BAR_W = 36;
-const BAR_X = (SVG_W - BAR_W) / 2;
-/** "Letzter Versuch" sits left of the bar, right-aligned to this x (owner mockup). */
-const LAST_END = BAR_X - 8;
-const TICK_END = BAR_X + BAR_W + 20;
-const NUM_X = TICK_END + 6;
-const TIME_X = NUM_X + 36;
-const CHIP_W = 112;
-const CHIP_H = 24;
+/** Attempt selected on the track by tap or drag; the hero above it shows its time. Default: last attempt. */
+let scoreSel: { key: string; idx: number } | null = null;
 
-/** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
-function scaleSvg(
+const BAR_W = 30;
+/** The marker lines of the best and the last attempt stick out left and right of the bar. */
+const MARK_PAD = 10;
+const LABEL_H = 24;
+
+const STAR_ICON = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M12 2l3 6.9 7.5.7-5.6 5 1.7 7.4L12 18l-6.6 4 1.7-7.4-5.6-5 7.5-.7z" fill="currentColor"/></svg>';
+
+/**
+ * Highscore track (owner design): one hero with the selected time, and a bar fitted to the saved times
+ * (yellow = fast at the bottom, blue = slow on top). Only the best and the last attempt carry a marker line
+ * and a chip, plus the slowest time as a bare value; every other attempt is a plain line you can tap or drag over.
+ */
+function buildTrack(
+  key: string,
   list: BestRound[],
   last: BestRound | undefined,
   limit: boolean,
-  anim: { prev: BestRound | undefined } | null = null,
-  avail?: number,
-): string {
+  anim: { prev: BestRound | undefined } | null,
+) {
+  const track = $('hs-track');
+  const H = Math.floor(track.clientHeight);
+  const W = Math.floor(track.clientWidth);
   const lastInList = !!last && list.some((r) => r.date === last.date);
   const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: (i + 1) as number | null, last: lastInList && r.date === last!.date }));
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
-  const { height, baseline, gap, markers } = layoutScale(rounds, avail);
-  const dense = gap < 26;
+  const { ys, ground } = layoutTrack(rounds, H);
+  const bestI = 0;
+  const lastI = rounds.findIndex((x) => x.last);
+  const slowI = ys.indexOf(Math.min(...ys));
+  const topRanked = Math.min(...ys.filter((_, i) => rounds[i].rank !== null));
 
-  // Where "Letzter Versuch" stood before: the previous round's line, or above everything
-  // (slowest) if that round is no longer among the best 20.
-  let fromY: number | null = null;
-  if (anim?.prev) {
-    const i = rounds.findIndex((x) => x.r.date === anim.prev!.date);
-    fromY = i >= 0 ? markers[i].y : Math.max(12, markers.at(-1)!.y - SCALE.gap);
-  }
+  const bl = Math.round((W - BAR_W) / 2);
+  const markLeft = bl - MARK_PAD;
+  const timeLeft = bl + BAR_W + MARK_PAD + 6;
 
   const parts: string[] = [];
-  // Grey track from the ground up; the colour starts at the ground and stacks one band per place,
-  // so the bar is only as tall as the slowest round is long.
-  parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${baseline}" class="band-empty"/>`);
-  const ranked = markers.filter((m) => m.rank !== null);
-  const topY = ranked.at(-1)?.y ?? baseline;
-  const reach = Math.max(1, baseline - topY);
-  ranked.forEach((m, k) => {
-    const from = k ? ranked[k - 1].y : baseline;
-    // Colour from the design-system scale by the height of the band's middle: blue (fast) → yellow (slow).
-    const p = Math.round(Math.min(1, Math.max(0, (baseline - (from + m.y) / 2) / reach)) * 100);
+  parts.push(`<div class="hs-bar" style="left:${bl}px;width:${BAR_W}px"></div>`);
+  const reach = Math.max(1, ground - topRanked);
+  let from = ground;
+  rounds.forEach((m, i) => {
+    if (m.rank === null) return;
+    // Yellow at the ground (fast), blue at the top (slow): design-system data scale, interpolated in OKLCH.
+    const mid = (from + ys[i]) / 2;
+    const p = Math.round((1 - Math.min(1, Math.max(0, (ground - mid) / reach))) * 100);
     parts.push(
-      `<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(from - m.y).toFixed(1)}" class="band" data-scale style="fill:color-mix(in oklch, var(--scale-low), var(--accent) ${p}%)"/>`,
+      `<div class="hs-band" data-scale style="left:${bl}px;width:${BAR_W}px;top:${ys[i].toFixed(1)}px;height:${(from - ys[i]).toFixed(1)}px;background:color-mix(in oklch, var(--scale-low), var(--accent) ${p}%)"></div>`,
+    );
+    from = ys[i];
+  });
+  parts.push(`<div class="hs-bar-edge" style="left:${bl}px;width:${BAR_W}px;top:${topRanked.toFixed(1)}px;height:${reach.toFixed(1)}px"></div>`);
+
+  // Where the last attempt stood before: the previous round's line, or the top if it left the list.
+  let fromY: number | null = null;
+  if (anim?.prev) {
+    const pi = rounds.findIndex((x) => x.r.date === anim.prev!.date);
+    fromY = pi >= 0 ? ys[pi] : 0;
+  }
+  const travels = fromY !== null && lastI >= 0 && Math.abs(fromY - ys[lastI]) > 0.5;
+  const travel = (i: number) => (travels && i === lastI ? { cls: ' last-marker travel', style: `--from:${(fromY! - ys[i]).toFixed(1)}px;` } : { cls: '', style: '' });
+
+  rounds.forEach((m, i) => {
+    const marked = i === bestI || i === lastI;
+    const t = travel(i);
+    const left = marked ? markLeft : bl;
+    const width = marked ? BAR_W + 2 * MARK_PAD : BAR_W;
+    parts.push(
+      `<div class="hs-tick${marked ? ' mark' : ''}${m.rank === null ? ' outside' : ''}${t.cls}" style="${t.style}top:${ys[i].toFixed(1)}px;left:${left}px;width:${width}px"></div>`,
     );
   });
-  parts.push(`<rect x="${BAR_X}" y="${topY.toFixed(1)}" width="${BAR_W}" height="${reach.toFixed(1)}" class="bar-edge"/>`);
 
-  markers.forEach((m, i) => {
-    const r = rounds[i].r;
-    const y = m.y.toFixed(1);
-    const fresh = anim && m.last ? ' is-new' : '';
-    const latest = m.last ? ' latest' : '';
-    const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
-    // Slower rounds fade out: the whole row (line, place, time) gets paler with the time.
-    const fade = m.fade < 1 ? ` style="opacity:${m.fade.toFixed(2)}"` : '';
-    parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"${fade}/>`);
-    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}${latest}"${fade}>${m.rank}</text>`);
-    // Right of the centred bar there is only room for the time, so the 10-second result goes below it.
-    // Below the time when rows have room, otherwise right behind it (dense scale on a small screen).
-    const extra = limit
-      ? dense
-        ? `<tspan class="tick-extra" dx="4">${r.inTime}/${r.count}</tspan>`
-        : `<tspan class="tick-extra" x="${TIME_X}" dy="16">${r.inTime}/${r.count}</tspan>`
-      : '';
-    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}${latest}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
-    if (m.last) {
-      // The marker: label left of the bar plus a line across it. After a round it travels from the
-      // previous attempt's height to the new one – down means less time (better), up means worse.
-      const travel = fromY !== null && Math.abs(fromY - m.y) > 0.5;
-      const style = travel ? ` style="--from:${(fromY! - m.y).toFixed(1)}px"` : '';
-      // One line, highlighted: yellow chip with the label left of the bar, a heavy line across the bar.
-      parts.push(
-        `<g class="last-marker${travel ? ' travel' : ''}"${style}>` +
-          `<path d="M${LAST_END} ${y}H${BAR_X + BAR_W}" class="tick tick-marker"/>` +
-          `<rect x="${LAST_END - CHIP_W}" y="${(m.y - CHIP_H / 2).toFixed(1)}" width="${CHIP_W}" height="${CHIP_H}" class="last-chip"/>` +
-          `<text x="${LAST_END - CHIP_W / 2}" y="${y}" class="tick-last" text-anchor="middle">Letzter Versuch</text>` +
-          `</g>`,
-      );
+  // Labels: best + last carry a chip and their time, the slowest only its time. They are pushed apart
+  // so they never overlap; the marker lines keep their exact height.
+  const rows: { kind: 'best' | 'last' | 'slow'; i: number }[] = [{ kind: 'best', i: bestI }];
+  if (lastI >= 0) rows.push({ kind: 'last', i: lastI });
+  if (slowI !== bestI && slowI !== lastI) rows.push({ kind: 'slow', i: slowI });
+  const rowY = spreadLabels(rows.map((r) => ys[r.i]), LABEL_H, LABEL_H / 2, H - LABEL_H / 2);
+  rows.forEach((row, k) => {
+    const y = rowY[k].toFixed(1);
+    const isLast = row.kind === 'last';
+    const fresh = anim && isLast ? ' is-new' : '';
+    if (row.kind !== 'slow') {
+      const text = row.kind === 'best' ? `${STAR_ICON}Dein bester Versuch` : 'Dein letzter Versuch';
+      const t = isLast ? travel(row.i) : { cls: '', style: '' };
+      parts.push(`<div class="hs-chip${t.cls}" style="${t.style}top:${y}px;right:${W - markLeft}px">${text}</div>`);
     }
+    parts.push(`<div class="hs-time${row.kind === 'slow' ? '' : ' key'}${fresh}" style="top:${y}px;left:${timeLeft}px">${formatMs(rounds[row.i].ms)}</div>`);
   });
+  track.innerHTML = parts.join('');
+  $('scale').classList.toggle('has-travel', travels);
 
-  const travelling = fromY !== null && markers.some((m) => m.last && Math.abs(fromY! - m.y) > 0.5);
-  return `<svg class="scale-svg${travelling ? ' has-travel' : ''}${dense ? ' dense' : ''}" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
+  // Hero: the selected attempt (default: the last one, else the record).
+  const sel = () => (scoreSel?.key === key && scoreSel.idx < rounds.length ? scoreSel.idx : lastI >= 0 ? lastI : bestI);
+  const hero = $('hs-hero');
+  const ticks = [...track.querySelectorAll<HTMLElement>('.hs-tick')];
+  const paint = (fresh: boolean) => {
+    const i = sel();
+    const m = rounds[i];
+    const isBest = i === bestI;
+    const head =
+      m.last && isBest
+        ? 'Dein letzter Versuch · Rekord'
+        : m.last
+          ? `Dein letzter Versuch${m.rank ? ` · Platz ${m.rank}` : ''}`
+          : isBest
+            ? 'Dein bester Versuch'
+            : `Platz ${m.rank}`;
+    const sub = limit
+      ? `${m.r.inTime} von ${m.r.count} richtig`
+      : isBest
+        ? 'Das ist dein Rekord.'
+        : `${formatMs(m.ms - rounds[bestI].ms)} langsamer als der Rekord`;
+    hero.innerHTML = `<p class="hs-label">${head}</p><p class="hs-value">${formatMs(m.ms)}</p><p class="hs-sub">${sub}</p>`;
+    hero.classList.toggle('is-new', fresh);
+    ticks.forEach((e, k) => e.classList.toggle('sel', k === i && !e.classList.contains('mark')));
+  };
+  paint(!!anim);
+
+  const pick = (ev: PointerEvent) => {
+    const py = ev.clientY - track.getBoundingClientRect().top;
+    let b = 0;
+    ys.forEach((y, i) => {
+      if (Math.abs(y - py) < Math.abs(ys[b] - py)) b = i;
+    });
+    if (sel() === b) return;
+    scoreSel = { key, idx: b };
+    paint(false);
+  };
+  let down = false;
+  track.onpointerdown = (e) => {
+    down = true;
+    track.setPointerCapture?.(e.pointerId);
+    pick(e);
+  };
+  track.onpointermove = (e) => {
+    if (down || e.pointerType === 'mouse') pick(e);
+  };
+  track.onpointerup = track.onpointercancel = () => {
+    down = false;
+  };
 }
 
 function updateScoreFilter(patch: Partial<RoundConfig>) {
@@ -698,6 +753,7 @@ document.addEventListener('keydown', (e) => {
 /** Always opens on the setting of the last played round, so nothing has to be chosen first. */
 function openScores() {
   scoreFilter = { ...(data.lastCfg ?? data.settings) };
+  scoreSel = null;
   setDropdown(false);
   // Show first: the scale measures the height that is left on screen.
   show('scores');

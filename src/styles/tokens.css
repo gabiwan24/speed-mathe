@@ -125,3 +125,22 @@ html.scroll-lock { overflow: hidden; }       /* modal/drawer open: page stops sc
   --band-3: #55f04a;
   --band-4: #f0d54a;
 }
+
+/* Balls (Kugeln mode, owner mockup): first number red, second blue, unfilled grey.
+   Each row of ten alternates bright / deep per block of five so the fives are easy to see.
+   Dark theme: lighter pair so both tones stay clearly visible on dark grey. */
+:root, :root[data-theme="light"] {
+  --ball-a: #ff2d2d; --ball-a-deep: #8c1111;
+  --ball-b: #28c6ff; --ball-b-deep: #00608a;
+  --ball-empty: var(--border);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ball-a: #ff6a6a; --ball-a-deep: #bf2b2b;
+    --ball-b: #4dd0ff; --ball-b-deep: #0f86bf;
+  }
+}
+:root[data-theme="dark"] {
+  --ball-a: #ff6a6a; --ball-a-deep: #bf2b2b;
+  --ball-b: #4dd0ff; --ball-b-deep: #0f86bf;
+}

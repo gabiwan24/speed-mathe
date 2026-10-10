@@ -23,6 +23,13 @@ describe('storage', () => {
     expect(load(s).settings.variant).toBe('limit');
   });
 
+  it('display defaults to numbers; old saves without it get numbers', () => {
+    expect(defaults().settings.display).toBe('numbers');
+    const s = memory();
+    s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, settings: { mode: 'plus' } }));
+    expect(load(s).settings.display).toBe('numbers');
+  });
+
   it('falls back to defaults on garbage, wrong version or throwing storage', () => {
     expect(load({ getItem: () => '{not json' })).toEqual(defaults());
     expect(load({ getItem: () => JSON.stringify({ v: 2 }) })).toEqual(defaults());

@@ -34,3 +34,9 @@
 2026-10-10 – Colour bar starts at the ground (0 s), line height above it proportional to time; best is the shortest stretch, marker moves down when better – owner: bar must start at the bottom and be shorter for less time.
 2026-10-10 – Default time variant is Stoppuhr, not 10 Sekunden pro Aufgabe – owner request; saved choices stay.
 2026-10-10 – Highscore rows (line, place, time) fade with the time, best 1.0 down to 0.4 for the slowest; last attempt stays fully visible; fade follows time, not line position – owner request; floor 0.4 keeps it readable.
+2026-10-10 – New setting Darstellung (Zahlen / Kugeln) on the home screen instead of a fifth mode; works with all four modes – owner asked for balls "auch" as a way to show the tasks.
+2026-10-10 – Balls: first number red, second blue, rows of ten, bright/deep per block of five; Verliebte Zahlen show one field of the whole – follows the owner mockup.
+2026-10-10 – Ball colours are new project tokens (--ball-a/-b, -deep, -empty), re-tuned for dark theme; the design system had no red/blue pair (--danger is a status colour, --scale-low is not for chrome).
+2026-10-10 – Balls are round (border-radius 50%) – owner mockup overrides the no-radius rule for this element only.
+2026-10-10 – Balls keep their own records and Highscore entries (key suffix |balls) – they make a task easier, times are not comparable.
+2026-10-10 – Bright/deep contrast of the five-blocks raised (red 2.6x, blue 3.5x luminance ratio on light) after owner feedback "difference too small".

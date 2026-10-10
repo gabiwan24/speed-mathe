@@ -16,6 +16,7 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 ## Game rules (Regelbuch – do not break)
 - Modes: Verliebte Zahlen (bis 10, Booster bis 20) · Plus bis 20 · Minus bis 20 · Bunt gemischt bis 20 (Booster bis 30). No negative results.
 - Verliebte Zahlen in both forms, mixed: `7 + ? = 10` and `? + 7 = 10`.
+- Darstellung: Zahlen or Kugeln (balls). Balls: first number red, second blue (Verliebte Zahlen: one field for the whole, known part filled, rest grey), rows of ten, each row's first five bright and second five deep (`src/logic/balls.ts`, tokens `--ball-*`). Balls keep their own records (`recordKey` suffix `|balls`).
 - Round lengths: 20 or 30 tasks. Two variants: 10 s per task, or total time stopped. Default = Stoppuhr.
 - 10 s limit expired → task counts as "zu langsam", round continues (no sudden death).
 - Wrong answer → field shakes, child corrects it, clock keeps running (no penalty screen).
@@ -38,6 +39,8 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 - Units written out, never abbreviated (owner rule): "5,0 Sekunden", "1:05,3 Minuten" – use `formatMs`/`formatTime`. Look: design-system tokens in `src/styles/tokens.css`.
 
 ## Gotchas
+- `.task-area` is a size container (`container-type: size`, `overflow: clip`): ball size is computed from `100cqh` and `--rows`, so six rows still fit above the keypad; do not make its height depend on content.
+- app.css styles `.task` as the speech-test card; game.css resets that padding for `.task-area .task`.
 - Microphone needs a secure context → dev server runs HTTPS; accept the certificate warning on the phone once.
 - `vite --mode http` serves plain HTTP for local preview tools that reject the self-signed cert.
 - vite.config.ts sets css.postcss to {} on purpose: a parent folder has a Tailwind/PostCSS config.

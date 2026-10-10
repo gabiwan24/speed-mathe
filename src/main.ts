@@ -2,12 +2,13 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
 import { formatClock, formatMs, formatTime } from './logic/format';
+import { ballPlan, ballShades, type BallGroup } from './logic/balls';
 import { layoutScale, SCALE } from './logic/scale';
 import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
 import { addResults, focusFacts, roundKnackpunkte } from './logic/stats';
 import { load, save } from './logic/storage';
-import { factPool, generateTasks, MODES, solvedText, type Mode } from './logic/tasks';
+import { factPool, generateTasks, MODES, solvedText, type Fact, type Mode } from './logic/tasks';
 
 const FEEDBACK_OK_MS = 260;
 const FEEDBACK_WRONG_MS = 420;
@@ -62,9 +63,9 @@ function renderHome() {
   $('booster').setAttribute('aria-checked', String(boosterOn));
 
   document.querySelectorAll<HTMLElement>('[data-setting]').forEach((group) => {
-    const key = group.dataset.setting as 'length' | 'variant';
+    const key = group.dataset.setting as 'length' | 'variant' | 'display';
     group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b.dataset.value === String(s[key])));
+      b.setAttribute('aria-pressed', String(b.dataset.value === String(s[key] ?? 'numbers')));
     });
   });
 
@@ -102,7 +103,8 @@ document.querySelectorAll<HTMLElement>('[data-setting]').forEach((group) => {
   group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
     b.addEventListener('click', () => {
       const v = b.dataset.value!;
-      updateSettings(group.dataset.setting === 'length' ? { length: Number(v) as 20 | 30 } : { variant: v as RoundConfig['variant'] });
+      const key = group.dataset.setting as 'length' | 'variant' | 'display';
+      updateSettings(key === 'length' ? { length: Number(v) as 20 | 30 } : { [key]: v });
     });
   });
 });
@@ -170,6 +172,7 @@ function renderTask() {
   task.classList.remove('enter');
   void task.offsetWidth;
   task.classList.add('enter');
+  renderBalls(fact, s.cfg.display === 'balls');
   renderInput();
 
   const n = s.round.index + 1;
@@ -182,6 +185,26 @@ function renderTask() {
     fill.style.transform = 'scaleX(1)';
     later(s, () => fill.classList.remove('refill'), 250);
   }
+}
+
+/** Picture of the task: first number red, second blue, rows of ten with alternating bright/deep fives. */
+function renderBalls(fact: Fact, on: boolean) {
+  const box = $('balls');
+  $('task-area').classList.toggle('with-balls', on);
+  box.hidden = !on;
+  if (!on) return;
+  const plan = ballPlan(fact);
+  const field = (g: BallGroup) =>
+    `<div class="ball-field">${ballShades(g)
+      .map((shade) => `<i class="ball ${shade === 'empty' ? 'empty' : `${g.color} ${shade}`}"></i>`)
+      .join('')}</div>`;
+  const [first, second] = plan.groups;
+  // Row count drives the ball size in CSS so even six rows fit above the keypad on a small phone.
+  box.style.setProperty('--rows', String(plan.groups.reduce((n, g) => n + g.slots / 10, 0)));
+  box.innerHTML = field(first) + (second ? `<span class="ball-op">${plan.operator}</span>${field(second)}` : '');
+  box.classList.remove('enter');
+  void box.offsetWidth;
+  box.classList.add('enter');
 }
 
 function renderInput() {
@@ -360,7 +383,7 @@ function finishRound() {
 
   const range = rangeOf(s.cfg.mode, s.cfg.booster);
   $('result-mode').textContent =
-    `${MODES[s.cfg.mode].label} bis ${range} · ${summary.count} Aufgaben · ${s.cfg.variant === 'limit' ? '10 Sekunden pro Aufgabe' : 'Stoppuhr'}` +
+    `${MODES[s.cfg.mode].label} bis ${range} · ${summary.count} Aufgaben · ${s.cfg.variant === 'limit' ? '10 Sekunden pro Aufgabe' : 'Stoppuhr'}${s.cfg.display === 'balls' ? ' · Kugeln' : ''}` +
     (s.practice ? ' · Übungsrunde, zählt nicht für den Rekord' : '');
   $('result-title').textContent = s.practice ? 'Übung geschafft!' : 'Geschafft!';
 
@@ -572,16 +595,22 @@ document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) =>
 // ---- options dropdown (length, time variant, booster) ----
 
 const optionLabel = (c: RoundConfig) =>
-  [c.booster ? `Booster bis ${MODES[c.mode].boosterRange}` : '', `${c.length} Aufgaben`, c.variant === 'limit' ? '10 Sekunden pro Aufgabe' : 'Stoppuhr']
+  [
+    c.display === 'balls' ? 'Kugeln' : '',
+    c.booster ? `Booster bis ${MODES[c.mode].boosterRange}` : '',
+    `${c.length} Aufgaben`,
+    c.variant === 'limit' ? '10 Sekunden pro Aufgabe' : 'Stoppuhr',
+  ]
     .filter(Boolean)
     .join(' · ');
 
 function optionsFor(mode: Mode): RoundConfig[] {
   const boosters = MODES[mode].boosterRange === null ? [false] : [false, true];
   const out: RoundConfig[] = [];
-  for (const booster of boosters)
-    for (const length of [20, 30] as const)
-      for (const variant of ['limit', 'clock'] as const) out.push({ mode, booster, length, variant });
+  for (const display of ['numbers', 'balls'] as const)
+    for (const booster of boosters)
+      for (const length of [20, 30] as const)
+        for (const variant of ['limit', 'clock'] as const) out.push({ mode, booster, length, variant, display });
   return out;
 }
 

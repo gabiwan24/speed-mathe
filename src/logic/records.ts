@@ -3,11 +3,16 @@ import type { Mode } from './tasks';
 
 export type Input = 'tap';
 
+/** How a task is shown: numbers only, or with balls (Kugeln) to count and see the five-blocks. */
+export type Display = 'numbers' | 'balls';
+
 export interface RoundConfig {
   mode: Mode;
   booster: boolean;
   length: 20 | 30;
   variant: Variant;
+  /** Missing in saves from before the balls mode = numbers. */
+  display?: Display;
 }
 
 export interface BestRound {
@@ -19,7 +24,10 @@ export interface BestRound {
 
 /** Records are kept per mode, booster, length, variant and input method (Regelbuch). */
 export function recordKey(cfg: RoundConfig, input: Input = 'tap'): string {
-  return [cfg.mode, cfg.booster ? 'boost' : 'base', cfg.length, cfg.variant, input].join('|');
+  // Balls make a task easier, so they keep separate records; the numbers key stays unchanged for old saves.
+  const parts: (string | number)[] = [cfg.mode, cfg.booster ? 'boost' : 'base', cfg.length, cfg.variant, input];
+  if (cfg.display === 'balls') parts.push('balls');
+  return parts.join('|');
 }
 
 /** Best rounds kept per setting for the Highscore page. */

@@ -39,6 +39,16 @@ describe('records', () => {
   });
 });
 
+describe('recordKey with display', () => {
+  const base = { mode: 'plus', booster: false, length: 20, variant: 'clock' } as const;
+
+  it('balls keep their own records, numbers keep the old key format', () => {
+    expect(recordKey({ ...base, display: 'numbers' })).toBe(recordKey(base));
+    expect(recordKey(base)).toBe('plus|base|20|clock|tap');
+    expect(recordKey({ ...base, display: 'balls' })).toBe('plus|base|20|clock|tap|balls');
+  });
+});
+
 describe('addToHistory', () => {
   const r = (totalMs: number, inTime = 20, date = String(totalMs)) => ({ totalMs, inTime, count: 20, date });
 

@@ -56,7 +56,7 @@ strong { font-weight: var(--weight-medium); }
 .setting-label { font-size: var(--text-md); }
 .setting .segmented { min-width: 10rem; }
 .setting-wide { flex-wrap: wrap; }
-.setting-wide .segmented { flex: 1 1 16rem; }
+.setting-wide .segmented { flex: 1 1 12rem; }
 
 .switch {
   position: relative;
@@ -156,7 +156,9 @@ strong { font-weight: var(--weight-medium); }
 .timebar-fill.low { background: var(--warning); }
 .timebar-fill.refill { transition: transform var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
 
-.task-area { flex: 1; display: grid; align-content: center; justify-items: center; gap: var(--space-3); }
+/* Size container: its height comes from the layout (what is left above the keypad), never from its
+   content, so the balls can be sized to fit and can never push the keypad out of the screen. */
+.task-area { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: center; gap: var(--space-3); container-type: size; overflow: clip; /* slide-in animations must not widen the page */ }
 .practice-tag { font-size: var(--text-sm); }
 .task {
   display: flex;
@@ -165,6 +167,8 @@ strong { font-weight: var(--weight-medium); }
   font: var(--weight-medium) clamp(2.75rem, 13vw, 4.5rem)/1 var(--font-mono);
   white-space: nowrap;
 }
+/* app.css styles .task as the speech-test card (32px padding); the equation must not inherit that. */
+.task-area .task { padding: 0; }
 .task.enter { animation: task-in var(--dur-base) var(--ease-out) both; }
 @keyframes task-in {
   from { opacity: 0; transform: translateX(var(--space-6)); }
@@ -411,3 +415,24 @@ strong { font-weight: var(--weight-medium); }
 @keyframes travel {
   from { transform: translateY(var(--from)); }
 }
+
+/* ---------- balls (Kugeln) ---------- */
+
+.balls { display: grid; justify-items: center; gap: var(--space-2); width: 100%; }
+.balls.enter { animation: task-in var(--dur-base) var(--ease-out) both; }
+.ball-field {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: var(--space-1);
+  /* Fit the available height: reserve room for equation, feedback, tag and gaps (8rem), the sign and
+     field gaps (2rem) and the ball gaps; dot = what is left / rows; width = ten dots + nine gaps. */
+  width: min(100%, 21rem, max(9rem, calc(10 * ((100cqh - 8rem - 2rem - var(--rows, 3) * 0.25rem) / var(--rows, 3)) + 2.25rem)));
+}
+/* Owner mockup: balls are round – the one exception to the no-radius rule. */
+.ball { display: block; aspect-ratio: 1; border-radius: 50%; background: var(--ball-empty); }
+.ball.a.bright { background: var(--ball-a); }
+.ball.a.deep { background: var(--ball-a-deep); }
+.ball.b.bright { background: var(--ball-b); }
+.ball.b.deep { background: var(--ball-b-deep); }
+.ball-op { font: var(--weight-medium) var(--text-2xl)/1 var(--font-mono); }
+.task-area.with-balls .task { font-size: clamp(2rem, 9vw, 3rem); }

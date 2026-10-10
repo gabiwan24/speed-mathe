@@ -53,6 +53,14 @@
         </div>
       </div>
 
+      <div class="setting setting-wide">
+        <span class="setting-label">Darstellung</span>
+        <div class="segmented" data-setting="display" role="group" aria-label="Darstellung">
+          <button type="button" data-value="numbers">Zahlen</button>
+          <button type="button" data-value="balls">Kugeln</button>
+        </div>
+      </div>
+
       <p class="record-line" id="record-line"></p>
 
       <div class="home-actions">
@@ -80,8 +88,9 @@
       <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="timebar-track" id="timebar-track" aria-hidden="true"><div class="timebar-fill" id="timebar-fill"></div></div>
 
-      <div class="task-area">
+      <div class="task-area" id="task-area">
         <div class="practice-tag muted" id="practice-tag" hidden>Übungsrunde</div>
+        <div class="balls" id="balls" aria-hidden="true" hidden></div>
         <div class="task" id="task" aria-live="polite"></div>
         <div class="feedback" id="feedback">&nbsp;</div>
       </div>

@@ -12,7 +12,7 @@
   </head>
   <body>
     <!-- Home -->
-    <section class="view page" id="home" hidden>
+    <section class="view page opt-rows" id="home" hidden>
       <header class="home-head">
         <h1>Speed-Mathe</h1>
       </header>
@@ -32,12 +32,15 @@
         </button>
       </div>
 
-      <div class="setting" id="booster-row">
-        <span class="setting-label">Booster <span class="muted" id="booster-range"></span></span>
-        <button type="button" class="switch" role="switch" id="booster" aria-checked="false" aria-labelledby="booster-row" title="Booster: größere Zahlen" data-tip="Booster: größere Zahlen"></button>
+      <div class="opt-row" id="booster-row">
+        <span class="setting-label" id="booster-label">Booster</span>
+        <div class="opt-control-end">
+          <span class="muted" id="booster-range"></span>
+          <button type="button" class="switch" role="switch" id="booster" aria-checked="false" aria-labelledby="booster-label" title="Booster: größere Zahlen" data-tip="Booster: größere Zahlen"></button>
+        </div>
       </div>
 
-      <div class="setting">
+      <div class="opt-row">
         <span class="setting-label">Aufgaben</span>
         <div class="segmented" data-setting="length" role="group" aria-label="Aufgaben">
           <button type="button" data-value="20">20</button>
@@ -45,7 +48,7 @@
         </div>
       </div>
 
-      <div class="setting setting-wide">
+      <div class="opt-row">
         <span class="setting-label">Zeit</span>
         <div class="segmented" data-setting="variant" role="group" aria-label="Zeit">
           <button type="button" data-value="limit">10 Sekunden pro Aufgabe</button>
@@ -53,7 +56,7 @@
         </div>
       </div>
 
-      <div class="setting setting-wide">
+      <div class="opt-row">
         <span class="setting-label">Darstellung</span>
         <div class="segmented" data-setting="display" role="group" aria-label="Darstellung">
           <button type="button" data-value="numbers">Zahlen</button>

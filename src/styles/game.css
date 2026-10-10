@@ -56,16 +56,20 @@ strong { font-weight: var(--weight-medium); }
 .mode-name { font-size: var(--text-md); font-weight: var(--weight-medium); }
 .mode-range { font-family: var(--font-mono); color: var(--text-muted); font-size: var(--text-sm); }
 
-.setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+/* Option rows share one grid (design-system rule): one label column (as wide as the longest label) and one
+   control column; every group has the same edges, every segment the same width. */
+.opt-rows { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--space-4); }
+.opt-rows > * { grid-column: 1 / -1; }
+.opt-row { display: grid; grid-template-columns: subgrid; align-items: center; }
+.opt-row > .segmented { min-width: 0; width: 100%; }
+/* Equal segments are narrow on a phone: small side padding so a long label ("10 Sekunden pro Aufgabe") wraps to two lines, never four. */
+.opt-row .segmented button { flex: 1 1 0; min-width: 0; padding: 0 var(--space-2); line-height: 1.15; text-align: center; }
+@media (max-width: 340px) {
+  .opt-row .segmented button { font-size: var(--text-sm); }
+  .setting-label { font-size: var(--text-base); }
 }
+.opt-control-end { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); min-width: 0; }
 .setting-label { font-size: var(--text-md); }
-.setting .segmented { min-width: 10rem; }
-.setting-wide { flex-wrap: wrap; }
-.setting-wide .segmented { flex: 1 1 12rem; }
 
 .switch {
   position: relative;

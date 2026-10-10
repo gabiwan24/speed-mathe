@@ -514,15 +514,16 @@ function renderScores() {
 /** Set when a round finishes: the scale then shows the new value appearing and the marker travelling. */
 let scoreAnim: { key: string; prev: BestRound | undefined } | null = null;
 
-// Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width).
+// Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width and is centred on the
+// page, so the bar – centred inside the SVG – stands in the middle of the screen, owner rule).
 const SVG_W = 330;
-/** "Letzter Versuch" sits left of the bar, right-aligned to this x (owner mockup). */
-const LAST_END = 60;
-const BAR_X = 68;
 const BAR_W = 36;
-const TICK_END = BAR_X + BAR_W + 24;
-const NUM_X = TICK_END + 8;
-const TIME_X = NUM_X + 40;
+const BAR_X = (SVG_W - BAR_W) / 2;
+/** "Letzter Versuch" sits left of the bar, right-aligned to this x (owner mockup). */
+const LAST_END = BAR_X - 8;
+const TICK_END = BAR_X + BAR_W + 20;
+const NUM_X = TICK_END + 6;
+const TIME_X = NUM_X + 36;
 
 /** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
 function scaleSvg(
@@ -563,7 +564,8 @@ function scaleSvg(
     const fade = m.fade < 1 ? ` style="opacity:${m.fade.toFixed(2)}"` : '';
     parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"${fade}/>`);
     if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}"${fade}>${m.rank}</text>`);
-    const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime}/${r.count}</tspan>` : '';
+    // Right of the centred bar there is only room for the time, so the 10-second result goes below it.
+    const extra = limit ? `<tspan class="tick-extra" x="${TIME_X}" dy="16">${r.inTime}/${r.count}</tspan>` : '';
     parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
     if (m.last) {
       // The marker: label left of the bar plus a line across it. After a round it travels from the

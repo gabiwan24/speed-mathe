@@ -40,3 +40,4 @@
 2026-10-10 – Balls are round (border-radius 50%) – owner mockup overrides the no-radius rule for this element only.
 2026-10-10 – Balls keep their own records and Highscore entries (key suffix |balls) – they make a task easier, times are not comparable.
 2026-10-10 – Bright/deep contrast of the five-blocks raised (red 2.6x, blue 3.5x luminance ratio on light) after owner feedback "difference too small".
+2026-10-10 – Highscore bar centred on the screen (x-axis), labels left and right of it; the 10-second "18/20" moved under the time to fit the right side – owner request.

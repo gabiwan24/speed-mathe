@@ -393,3 +393,19 @@ strong { font-weight: var(--weight-medium); }
   opacity: 0;
 }
 .dropdown-item[aria-selected="true"]::before { opacity: 1; }
+
+/* After a round: the new value appears, then the "Letzter Versuch" marker travels to it. */
+.scale-svg .is-new { animation: fade-in var(--dur-view) var(--ease-out) var(--dur-view) both; }
+.scale-svg path.is-new {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: draw-line var(--dur-view) var(--ease-out) var(--dur-view) both;
+}
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+}
+.scale-svg .tick-marker { stroke-width: 3; }
+.scale-svg .last-marker.travel { animation: travel calc(var(--dur-slow) * 2) var(--ease-fluid) calc(var(--dur-view) * 2.5) both; }
+@keyframes travel {
+  from { transform: translateY(var(--from)); }
+}

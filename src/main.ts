@@ -2,7 +2,7 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
 import { formatClock, formatMs, formatTime } from './logic/format';
-import { layoutScale } from './logic/scale';
+import { layoutScale, SCALE } from './logic/scale';
 import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
 import { addResults, focusFacts, roundKnackpunkte } from './logic/stats';
@@ -353,6 +353,7 @@ function finishRound() {
     const added = addToHistory(list, entry, s.cfg.variant);
     data.history[key] = added.list;
     rank = added.rank;
+    scoreAnim = { key, prev: data.last[key] };
     data.last[key] = entry;
   }
   save(data);
@@ -480,8 +481,15 @@ function renderScores() {
     return;
   }
   const key = recordKey(f);
-  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit');
+  // Only the first look at a freshly played setting animates; later filter changes render still.
+  const anim = scoreAnim?.key === key ? scoreAnim : null;
+  if (anim) scoreAnim = null;
+  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit', anim);
+  if (anim) box.querySelector('.is-new')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
+
+/** Set when a round finishes: the scale then shows the new value appearing and the marker travelling. */
+let scoreAnim: { key: string; prev: BestRound | undefined } | null = null;
 
 // Scale geometry in SVG units (1:1 with CSS px; the SVG keeps a fixed width).
 const SVG_W = 330;
@@ -494,11 +502,24 @@ const NUM_X = TICK_END + 8;
 const TIME_X = NUM_X + 36;
 
 /** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
-function scaleSvg(list: BestRound[], last: BestRound | undefined, limit: boolean): string {
+function scaleSvg(
+  list: BestRound[],
+  last: BestRound | undefined,
+  limit: boolean,
+  anim: { prev: BestRound | undefined } | null = null,
+): string {
   const lastInList = !!last && list.some((r) => r.date === last.date);
   const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: (i + 1) as number | null, last: lastInList && r.date === last!.date }));
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
   const { height, markers } = layoutScale(rounds);
+
+  // Where "Letzter Versuch" stood before: the previous round's line, or below everything
+  // if that round is no longer among the best 20.
+  let fromY: number | null = null;
+  if (anim?.prev) {
+    const i = rounds.findIndex((x) => x.r.date === anim.prev!.date);
+    fromY = i >= 0 ? markers[i].y : Math.min(height - 12, markers.at(-1)!.y + SCALE.gap);
+  }
 
   const parts: string[] = [];
   // Empty top = room to improve; below each place a band in the next colour, the last band runs to the bottom.
@@ -512,18 +533,25 @@ function scaleSvg(list: BestRound[], last: BestRound | undefined, limit: boolean
   markers.forEach((m, i) => {
     const r = rounds[i].r;
     const y = m.y.toFixed(1);
-    // The last attempt's line reaches out to its label on the left.
-    const from = m.last ? LAST_END + 4 : BAR_X;
+    const fresh = anim && m.last ? ' is-new' : '';
     const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
-    parts.push(`<path d="M${from} ${y}H${TICK_END}" class="${cls}"/>`);
-    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank">${m.rank}</text>`);
+    parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"/>`);
+    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}">${m.rank}</text>`);
     const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime}/${r.count}</tspan>` : '';
-    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time">${formatClock(r.totalMs)}${extra}</text>`);
-    // Two short lines so the label fits left of the bar on a phone.
-    if (m.last)
+    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}">${formatClock(r.totalMs)}${extra}</text>`);
+    if (m.last) {
+      // The marker: label left of the bar plus a line across it. After a round it travels from the
+      // previous attempt's height to the new one – up means better, down means worse.
+      const travel = fromY !== null && Math.abs(fromY - m.y) > 0.5;
+      const style = travel ? ` style="--from:${(fromY! - m.y).toFixed(1)}px"` : '';
       parts.push(
-        `<text x="${LAST_END}" y="${y}" class="tick-last" text-anchor="end"><tspan x="${LAST_END}" dy="-0.6em">Letzter</tspan><tspan x="${LAST_END}" dy="1.2em">Versuch</tspan></text>`,
+        `<g class="last-marker${travel ? ' travel' : ''}"${style}>` +
+          `<path d="M${LAST_END + 4} ${y}H${BAR_X + BAR_W}" class="tick tick-marker"/>` +
+          // Two short lines so the label fits left of the bar on a phone.
+          `<text x="${LAST_END}" y="${y}" class="tick-last" text-anchor="end"><tspan x="${LAST_END}" dy="-0.6em">Letzter</tspan><tspan x="${LAST_END}" dy="1.2em">Versuch</tspan></text>` +
+          `</g>`,
       );
+    }
   });
 
   return `<svg class="scale-svg" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;

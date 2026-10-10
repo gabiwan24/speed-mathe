@@ -1,4 +1,7 @@
-/** Geometry for the Highscore scale: a vertical bar where height = time (faster = higher). */
+/**
+ * Geometry for the Highscore scale: a vertical bar that grows with time, like a stopwatch column.
+ * Less time is better, so the best round sits at the bottom and slower rounds stack above it.
+ */
 
 export interface ScaleInput {
   ms: number;
@@ -18,8 +21,10 @@ export interface ScaleLayout {
 }
 
 export const SCALE = {
-  top: 96,
-  bottom: 96,
+  /** Grey room below the best round: the way still open towards 0. */
+  bestPad: 96,
+  /** Room above the slowest round. */
+  slowPad: 96,
   minSpan: 320,
   perEntry: 40,
   /** Minimum distance between two lines so their labels stay readable. */
@@ -49,11 +54,12 @@ export function layoutScale(items: ScaleInput[]): ScaleLayout {
   // so a crowded line moves down itself instead of only its label).
   const markers: ScaleMarker[] = [];
   ordered.forEach((item, i) => {
-    const linear = SCALE.top + (vmax === vmin ? 0 : ((values[i] - vmin) / (vmax - vmin)) * span);
+    const linear = SCALE.bestPad + (vmax === vmin ? 0 : ((values[i] - vmin) / (vmax - vmin)) * span);
     const prev = markers.at(-1);
     markers.push({ ...item, y: prev ? Math.max(linear, prev.y + SCALE.gap) : linear });
   });
 
-  const height = Math.max(SCALE.top + span, markers.at(-1)!.y) + SCALE.bottom;
-  return { height, markers };
+  const height = Math.max(SCALE.bestPad + span, markers.at(-1)!.y) + SCALE.slowPad;
+  // Laid out best-first from the top, then mirrored: best at the bottom, slower rounds higher up.
+  return { height, markers: markers.map((m) => ({ ...m, y: height - m.y })) };
 }

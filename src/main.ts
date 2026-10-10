@@ -499,7 +499,7 @@ const BAR_X = 68;
 const BAR_W = 36;
 const TICK_END = BAR_X + BAR_W + 24;
 const NUM_X = TICK_END + 8;
-const TIME_X = NUM_X + 36;
+const TIME_X = NUM_X + 40;
 
 /** Vertical scale as in the owner's mockup: height = time, a straight line per place, coloured bands between. */
 function scaleSvg(
@@ -513,21 +513,21 @@ function scaleSvg(
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
   const { height, markers } = layoutScale(rounds);
 
-  // Where "Letzter Versuch" stood before: the previous round's line, or below everything
-  // if that round is no longer among the best 20.
+  // Where "Letzter Versuch" stood before: the previous round's line, or above everything
+  // (slowest) if that round is no longer among the best 20.
   let fromY: number | null = null;
   if (anim?.prev) {
     const i = rounds.findIndex((x) => x.r.date === anim.prev!.date);
-    fromY = i >= 0 ? markers[i].y : Math.min(height - 12, markers.at(-1)!.y + SCALE.gap);
+    fromY = i >= 0 ? markers[i].y : Math.max(12, markers.at(-1)!.y - SCALE.gap);
   }
 
   const parts: string[] = [];
-  // Empty top = room to improve; below each place a band in the next colour, the last band runs to the bottom.
+  // Empty bottom = room to improve towards 0; above each place a band in the next colour, the last band runs to the top.
   parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${height}" class="band-empty"/>`);
   const ranked = markers.filter((m) => m.rank !== null);
   ranked.forEach((m, k) => {
-    const end = ranked[k + 1]?.y ?? height;
-    parts.push(`<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(end - m.y).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
+    const top = ranked[k + 1]?.y ?? 0;
+    parts.push(`<rect x="${BAR_X}" y="${top.toFixed(1)}" width="${BAR_W}" height="${(m.y - top).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
   });
 
   markers.forEach((m, i) => {
@@ -541,7 +541,7 @@ function scaleSvg(
     parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}">${formatClock(r.totalMs)}${extra}</text>`);
     if (m.last) {
       // The marker: label left of the bar plus a line across it. After a round it travels from the
-      // previous attempt's height to the new one – up means better, down means worse.
+      // previous attempt's height to the new one – down means less time (better), up means worse.
       const travel = fromY !== null && Math.abs(fromY - m.y) > 0.5;
       const style = travel ? ` style="--from:${(fromY! - m.y).toFixed(1)}px"` : '';
       parts.push(

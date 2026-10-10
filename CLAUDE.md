@@ -8,6 +8,7 @@ Speed-Rechen-PWA für ein Kind der 2. Klasse (Android-Handy, Chrome). Eigene App
 - Pages: `index.html` = game (`src/main.ts`), `sprachtest.html` = speech recognition spike (`src/speech-test.ts`)
 - Icons: `npx pwa-assets-generator` regenerates PNGs from `public/logo.svg` (config `pwa-assets.config.ts`)
 - Acceptance ledger: `GATES.md`
+- Deploy: push to main → GitHub Actions (`BASE_PATH=/speed-mathe/`) → https://gabiwan24.github.io/speed-mathe/
 
 ## Stack
 Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-pwa; no backend, localStorage only (`speed-mathe:v1`).

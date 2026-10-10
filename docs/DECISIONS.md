@@ -16,3 +16,4 @@
 2026-10-10 – Options a mode does not support are hidden instead of explained – owner rule, less reading for the child.
 2026-10-10 – Time units written out ("5,0 Sekunden", "1:05,3 Minuten", "10 Sekunden pro Aufgabe") – owner rule, no abbreviations for the child.
 2026-10-10 – Practice rounds show no clock, only the 10-s bar where the variant needs it – owner rule, practice without time pressure display.
+2026-10-10 – Public repo gabiwan24/speed-mathe, GitHub Pages via Actions – owner request, fixed URL for the phone.

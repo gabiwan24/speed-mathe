@@ -5,10 +5,16 @@ body { margin: 0; background: var(--bg); color: var(--text); }
 .page {
   max-width: 40rem;
   margin: 0 auto;
-  padding: var(--space-4);
+  /* Every screen fits the viewport height, no vertical scrolling (owner rule); gaps follow the height. */
+  height: 100dvh;
+  overflow: hidden;
+  padding: clamp(0.5rem, 1.8dvh, var(--space-4)) var(--space-4);
   display: grid;
-  gap: var(--space-4);
+  align-content: start;
+  gap: clamp(0.375rem, 1.5dvh, var(--space-3));
 }
+/* The speech test page is a long log, it may scroll. */
+.page.page-scroll { height: auto; overflow: visible; }
 h1 { margin: 0; font-size: var(--text-2xl); font-weight: var(--weight-medium); }
 h2 { margin: 0 0 var(--space-3); font-size: var(--text-md); font-weight: var(--weight-medium); }
 p { margin: var(--space-1) 0 0; }
@@ -48,16 +54,20 @@ p { margin: var(--space-1) 0 0; }
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.btn:hover:not(:disabled), .segmented button:hover { background: var(--surface-2); }
-.btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); border-color: var(--accent-edge); }
-.btn-primary:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2-edge); }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+/* Call to action = blue (design-system --cta); yellow is reserved for active/selected states. */
+.btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); border-color: var(--cta); }
+.btn-primary:hover:not(:disabled) { background: var(--cta-hover); border-color: var(--cta-hover); }
 button:disabled { opacity: .45; cursor: default; }
 button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
+/* Choosing among peers: the active option carries the yellow signal, inactive ones recede –
+   never black vs. white, where it is unclear which one is active (design-system rule). */
 .segmented { display: flex; }
-.segmented button { flex: 1; }
-.segmented button + button { border-left: 0; }
-.segmented button[aria-pressed="true"] { background: var(--text); color: var(--surface); }
+.segmented button { position: relative; flex: 1; background: var(--surface-2); color: var(--text-muted); }
+.segmented button + button { margin-left: -1px; }
+.segmented button:hover:not([aria-pressed="true"]) { background: var(--border); color: var(--text); }
+.segmented button[aria-pressed="true"] { z-index: 1; background: var(--accent); color: var(--accent-ink); border-color: var(--accent-edge); }
 
 .summary { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2) var(--space-4); margin: 0; }
 .summary dt { color: var(--text-muted); }

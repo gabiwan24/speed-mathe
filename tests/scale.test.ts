@@ -5,7 +5,7 @@ const item = (ms: number, rank: number | null, last = false) => ({ ms, rank, las
 
 describe('layoutScale', () => {
   it('empty list has no markers', () => {
-    expect(layoutScale([])).toEqual({ height: 0, baseline: 0, markers: [] });
+    expect(layoutScale([])).toEqual({ height: 0, baseline: 0, gap: SCALE.gap, markers: [] });
   });
 
   it('the bar starts at the ground; line height above it is proportional to time from 0', () => {
@@ -77,5 +77,46 @@ describe('layoutScale', () => {
   it('a single ranked round or equal times stay fully visible', () => {
     expect(layoutScale([item(30_000, 1)]).markers[0].fade).toBe(1);
     expect(layoutScale([item(30_000, 1), item(30_000, 2)]).markers.map((m) => m.fade)).toEqual([1, 1]);
+  });
+
+  describe('fitting into an available height (no scrolling)', () => {
+    const rounds = (n: number, spread = 1000) =>
+      Array.from({ length: n }, (_, i) => item(30_000 + i * spread, i + 1));
+
+    it.each([1, 2, 5, 9, 20])('%i rounds fit into 600, 450 and 360 px', (n) => {
+      for (const avail of [600, 450, 360]) {
+        const { height, baseline, markers } = layoutScale(rounds(n), avail);
+        expect(height).toBeLessThanOrEqual(avail);
+        expect(baseline).toBeLessThanOrEqual(height);
+        for (const m of markers) {
+          expect(m.y).toBeGreaterThanOrEqual(0);
+          expect(m.y).toBeLessThanOrEqual(baseline);
+        }
+      }
+    });
+
+    it('keeps lines apart by at least the minimum gap, even with 20 rounds on a small screen', () => {
+      const { markers } = layoutScale(rounds(20, 10), 450);
+      for (let i = 1; i < markers.length; i++) {
+        expect(markers[i - 1].y - markers[i].y).toBeGreaterThanOrEqual(SCALE.minGap - 1e-6);
+      }
+    });
+
+    it('uses the full height for few rounds: the slowest line reaches near the top', () => {
+      const { markers, height } = layoutScale(rounds(3, 15_000), 600);
+      expect(markers.at(-1)!.y).toBeLessThan(height * 0.2);
+    });
+
+    it('stays proportional to time when there is room', () => {
+      const { baseline, markers } = layoutScale([item(20_000, 1), item(40_000, 2), item(60_000, 3)], 600);
+      const h = markers.map((m) => baseline - m.y);
+      expect(h[1] / h[0]).toBeCloseTo(2, 1);
+      expect(h[2] / h[0]).toBeCloseTo(3, 1);
+    });
+
+    it('reports a small gap for crowded screens so labels can shrink', () => {
+      expect(layoutScale(rounds(20), 450).gap).toBeLessThan(26);
+      expect(layoutScale(rounds(4), 600).gap).toBe(SCALE.gap);
+    });
   });
 });

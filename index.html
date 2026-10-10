@@ -65,8 +65,10 @@
 
       <div class="home-actions">
         <button type="button" class="btn-primary btn-big" id="go">Los</button>
-        <button type="button" class="btn btn-big" id="practice-home" hidden>Knackpunkte üben</button>
-        <button type="button" class="btn btn-big" id="scores-open">Highscores</button>
+        <div class="actions-row">
+          <button type="button" class="btn btn-big btn-sm" id="practice-home" hidden>Knackpunkte üben</button>
+          <button type="button" class="btn btn-big btn-sm" id="scores-open">Highscores</button>
+        </div>
       </div>
       <a class="footer-link muted" href="sprachtest.html">Sprachtest</a>
     </section>
@@ -124,6 +126,15 @@
 
       <dl class="result-stats" id="result-stats"></dl>
 
+      <section class="card stars-card" id="stars-card">
+        <div class="stars-head">
+          <h2>Sterne</h2>
+          <div class="stars-row" id="stars-row" aria-hidden="true"></div>
+          <span class="stars-gain" id="stars-gain"></span>
+        </div>
+        <ul class="stars-why" id="stars-why"></ul>
+      </section>
+
       <section class="card knack">
         <h2>Knackpunkte</h2>
         <ol class="knack-list" id="knack-list"></ol>
@@ -131,9 +142,11 @@
 
       <div class="home-actions">
         <button type="button" class="btn-primary btn-big" id="again">Nochmal</button>
-        <button type="button" class="btn btn-big" id="practice" hidden>Knackpunkte üben</button>
-        <button type="button" class="btn btn-big" id="result-scores">Highscores</button>
-        <button type="button" class="btn btn-big" id="menu">Menü</button>
+        <div class="actions-row">
+          <button type="button" class="btn btn-big btn-sm" id="practice" hidden>Knackpunkte üben</button>
+          <button type="button" class="btn btn-big btn-sm" id="result-scores">Highscores</button>
+          <button type="button" class="btn btn-big btn-sm" id="menu">Menü</button>
+        </div>
       </div>
     </section>
 
@@ -144,6 +157,7 @@
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" /></svg>
         </button>
         <h1>Highscores</h1>
+        <span class="stars-total" id="stars-total"></span>
       </header>
 
       <!-- Small, quiet filter chips: the scale is the content, not the controls. -->

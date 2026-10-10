@@ -10,6 +10,8 @@ export interface SaveData {
   last: Record<string, BestRound>;
   /** Setting of the most recently played round; the Highscore page opens on it. */
   lastCfg: RoundConfig | null;
+  /** Stars collected over all finished rounds (see stars.ts). */
+  stars: number;
   stats: FactStats;
 }
 
@@ -21,6 +23,7 @@ export const defaults = (): SaveData => ({
   history: {},
   last: {},
   lastCfg: null,
+  stars: 0,
   stats: {},
 });
 
@@ -39,6 +42,7 @@ export function load(storage: Pick<Storage, 'getItem'> | undefined = globalThis.
       history: data.history ?? Object.fromEntries(Object.entries(data.records ?? {}).map(([k, r]) => [k, [r]])),
       last: data.last ?? {},
       lastCfg: data.lastCfg ?? null,
+      stars: typeof data.stars === 'number' && data.stars >= 0 ? Math.floor(data.stars) : 0,
       stats: data.stats ?? {},
     };
   } catch {

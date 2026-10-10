@@ -30,6 +30,13 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 - `src/logic/` pure, tested: `tasks.ts` (fact pools, generator), `round.ts` (round state machine, times passed in), `records.ts`, `stats.ts` (Knackpunkte), `storage.ts`, `format.ts`
 - `src/main.ts` all DOM: views home → countdown → play → result, scores (Highscores), overlays pause/confirm
 
+## Layout & colour rules (owner)
+- **Every screen fits the viewport height, no vertical scrolling** (`.page` = 100dvh grid, sizes via `clamp(… dvh …)`, rem base shrinks below 620px height). Verified at 375x812, 360x740, 360x640, 320x568. Highscore scale gets exactly the free height (`layoutScale(items, avail)`). Only the speech-test page may scroll (`.page-scroll`).
+- **Call to action = blue** (`--cta`, design system): the single big button per screen ("Los", "Nochmal", OK key). **Yellow = active/selected** (segmented control, switch ON, selected tile, focus) – never black-vs-white pairs.
+- Highscore bar uses the design-system data scale: `color-mix(in oklch, var(--scale-low), var(--accent) P%)`, bands marked `data-scale`, 1px `--fill-edge` outline.
+- Stars (`src/logic/stars.ts`): 1 per finished unit (also practice), +2 new highscore (never practice), +1 flawless (no wrong answer, no timeout). Total in `data.stars`, shown on the Highscore page and itemised on the result screen.
+- Design-system audit: copy `~/.claude/skills/design-system/audit.js` to `node_modules/ds-audit.js`, set `window.AUDIT_EXTRA_TOKENS=['--ball-a','--ball-a-deep','--ball-b','--ball-b-deep','--ball-empty']`, load it with a cache-busting `?v=` and run `runAudit('body')`; remove the file afterwards. Token-file (`:root`) and `.sr-only` findings are expected.
+
 ## Conventions
 - Pure logic framework-free and unit-tested in `tests/`; DOM code stays thin.
 - A task's timer runs only between `Round.begin()` and its result; feedback animations never count.

@@ -30,6 +30,19 @@ describe('storage', () => {
     expect(load(s).settings.display).toBe('numbers');
   });
 
+  it('stars start at 0, survive a round trip and ignore garbage', () => {
+    expect(defaults().stars).toBe(0);
+    const s = memory();
+    const data = defaults();
+    data.stars = 17;
+    save(data, s);
+    expect(load(s).stars).toBe(17);
+    s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, stars: 'many' }));
+    expect(load(s).stars).toBe(0);
+    s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, stars: -4 }));
+    expect(load(s).stars).toBe(0);
+  });
+
   it('falls back to defaults on garbage, wrong version or throwing storage', () => {
     expect(load({ getItem: () => '{not json' })).toEqual(defaults());
     expect(load({ getItem: () => JSON.stringify({ v: 2 }) })).toEqual(defaults());

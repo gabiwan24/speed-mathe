@@ -41,3 +41,9 @@
 2026-10-10 – Balls keep their own records and Highscore entries (key suffix |balls) – they make a task easier, times are not comparable.
 2026-10-10 – Bright/deep contrast of the five-blocks raised (red 2.6x, blue 3.5x luminance ratio on light) after owner feedback "difference too small".
 2026-10-10 – Highscore bar centred on the screen (x-axis), labels left and right of it; the 10-second "18/20" moved under the time to fit the right side – owner request.
+2026-10-10 – Stars: 1 per finished unit (also Knackpunkte practice), +2 new highscore (first record of a setting counts, practice never), +1 flawless (no wrong answer and no timeout) – owner rules.
+2026-10-10 – Every screen fits the viewport height without vertical scrolling; compact result screen (3 tiles in one row, stars inline, buttons in one row), highscore scale fits its area, rem base shrinks on short screens – owner rule.
+2026-10-10 – Highscore bar colours come from the design-system data scale (--scale-low blue → --accent yellow, OKLCH), replacing the mockup colours – owner request.
+2026-10-10 – Design system: active option among peers = yellow signal, inactive recedes; black-vs-white pairs are forbidden (unclear which is active) – owner request.
+2026-10-10 – Design system: new call-to-action colour --cta (electric blue; dark theme lighter blue with black text) replaces yellow as the primary button, because yellow now marks active states – owner request.
+2026-10-10 – Two-line tiles centre their whole text block vertically – owner request.

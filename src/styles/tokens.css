@@ -51,7 +51,8 @@
   --fill-edge: #000000;            /* 1px edge around gradient fills on light backgrounds */
   --accent-text: #4f5900;          /* accent as TEXT/icon on light bg = dark olive (contrast ≥ 4.5); yellow fill only with --accent-ink */
   --danger: #c8202a;
-  --btn-primary-bg: var(--accent); --btn-primary-fg: var(--accent-ink);   /* primary button = acid yellow */
+  --cta: #2557ff; --cta-hover: #1640d9; --cta-ink: #ffffff;   /* call to action = electric blue, white text (5.4:1) */
+  --btn-primary-bg: var(--cta); --btn-primary-fg: var(--cta-ink);   
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
   --shadow-md: 0 8px 24px rgb(0 0 0 / 0.10);
 }
@@ -67,7 +68,8 @@
   --fill-edge: transparent;
     --accent-text: #fbff00;
     --danger: #ff6b6b;
-    --btn-primary-bg: var(--accent); --btn-primary-fg: var(--accent-ink);
+    --cta: #6d92ff; --cta-hover: #95b0ff; --cta-ink: #000000;   /* lighter blue on dark grey, black text (7.2:1) */
+  --btn-primary-bg: var(--cta); --btn-primary-fg: var(--cta-ink);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
     --shadow-md: 0 8px 24px rgb(0 0 0 / 0.6);
   }
@@ -81,7 +83,8 @@
   --fill-edge: transparent;
     --accent-text: #fbff00;
   --danger: #ff6b6b;
-  --btn-primary-bg: var(--accent); --btn-primary-fg: var(--accent-ink);
+  --cta: #6d92ff; --cta-hover: #95b0ff; --cta-ink: #000000;   /* lighter blue on dark grey, black text (7.2:1) */
+  --btn-primary-bg: var(--cta); --btn-primary-fg: var(--cta-ink);
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
   --shadow-md: 0 8px 24px rgb(0 0 0 / 0.6);
 }
@@ -118,13 +121,6 @@ html.scroll-lock { overflow: hidden; }       /* modal/drawer open: page stops sc
 ::selection { background: var(--accent); color: var(--accent-ink); }   /* text selection in palette colors, not OS blue */
 :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
-/* Project tokens (speed-mathe): Highscore scale bands from the owner's mockup, same in both themes. */
-:root {
-  --band-1: #db45f0;
-  --band-2: #4a6af0;
-  --band-3: #55f04a;
-  --band-4: #f0d54a;
-}
 
 /* Balls (Kugeln mode, owner mockup): first number red, second blue, unfilled grey.
    Each row of ten alternates bright / deep per block of five so the fives are easy to see.

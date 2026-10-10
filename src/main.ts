@@ -4,6 +4,7 @@ import './styles/game.css';
 import { formatClock, formatMs, formatTime } from './logic/format';
 import { ballPlan, ballShades, type BallGroup } from './logic/balls';
 import { layoutScale, SCALE } from './logic/scale';
+import { starsFor, starsText } from './logic/stars';
 import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
 import { addResults, focusFacts, roundKnackpunkte } from './logic/stats';
@@ -195,7 +196,7 @@ function renderBalls(fact: Fact, on: boolean) {
   if (!on) return;
   const plan = ballPlan(fact);
   const field = (g: BallGroup) =>
-    `<div class="ball-field">${ballShades(g)
+    `<div class="ball-field" data-round>${ballShades(g)
       .map((shade) => `<i class="ball ${shade === 'empty' ? 'empty' : `${g.color} ${shade}`}"></i>`)
       .join('')}</div>`;
   const [first, second] = plan.groups;
@@ -379,6 +380,9 @@ function finishRound() {
     scoreAnim = { key, prev: data.last[key] };
     data.last[key] = entry;
   }
+  // Stars: 1 per finished unit, +2 new highscore, +1 flawless (timeouts count as mistakes).
+  const earned = starsFor({ practice: s.practice, record: !!imp, wrong: summary.wrong, tooSlow: summary.count - summary.inTime });
+  data.stars += earned.total;
   save(data);
 
   const range = rangeOf(s.cfg.mode, s.cfg.booster);
@@ -401,9 +405,17 @@ function finishRound() {
     return `${t.value}<span class="unit">${t.unit}</span>`;
   };
   const rows: [string, string][] = [['Zeit', time(summary.totalMs)]];
-  if (s.cfg.variant === 'limit') rows.push(['Rechtzeitig', `${summary.inTime} / ${summary.count}`]);
+  if (s.cfg.variant === 'limit') rows.push(['Rechtzeitig', `${summary.inTime}/${summary.count}`]);
   rows.push(['Fehler', String(summary.wrong)], ['Pro Aufgabe', time(summary.totalMs / summary.count)]);
-  $('result-stats').innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  const stats = $('result-stats');
+  stats.style.setProperty('--cols', String(rows.length));
+  stats.innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+
+  $('stars-gain').textContent = `+${earned.total}`;
+  $('stars-row').innerHTML = Array.from({ length: earned.total }, (_, i) => starSvg(i)).join('');
+  $('stars-why').innerHTML = earned.parts
+    .map((p) => `<li><span>${p.label}</span><span class="stars-plus">+${p.stars}</span></li>`)
+    .join('');
 
   const knack = roundKnackpunkte(s.round.results);
   $('knack-list').innerHTML = knack.length
@@ -423,6 +435,10 @@ function finishRound() {
     badge.classList.add('flash');
   }
 }
+
+/** Five-point star; fill and edge come from the accent tokens, --i staggers the pop-in. */
+const starSvg = (i: number) =>
+  `<svg class="star" style="--i:${i}" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.3 16.5,14 18.2,21 12,17.3 5.8,21 7.5,14 2,9.3 9,9"/></svg>`;
 
 function improvementText(imp: Improvement): string {
   switch (imp.kind) {
@@ -478,6 +494,7 @@ $('scores-modes').innerHTML = modeIds
 const playedOptions = (mode: Mode) => optionsFor(mode).filter((c) => data.history[recordKey(c)]?.length);
 
 function renderScores() {
+  $('stars-total').innerHTML = `${starSvg(0).replace('class="star"', 'class="star star-sm"')}<span>${starsText(data.stars)}</span>`;
   let f = withBooster(scoreFilter);
   const options = playedOptions(f.mode);
   // Switching to a mode whose current combination was never played jumps to the one played last.
@@ -507,8 +524,8 @@ function renderScores() {
   // Only the first look at a freshly played setting animates; later filter changes render still.
   const anim = scoreAnim?.key === key ? scoreAnim : null;
   if (anim) scoreAnim = null;
-  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit', anim);
-  if (anim) box.querySelector('.is-new')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  // The scale gets exactly the height that is left on screen, so the page never scrolls.
+  box.innerHTML = scaleSvg(data.history[key], data.last[key], f.variant === 'limit', anim, Math.floor(box.clientHeight));
 }
 
 /** Set when a round finishes: the scale then shows the new value appearing and the marker travelling. */
@@ -531,11 +548,13 @@ function scaleSvg(
   last: BestRound | undefined,
   limit: boolean,
   anim: { prev: BestRound | undefined } | null = null,
+  avail?: number,
 ): string {
   const lastInList = !!last && list.some((r) => r.date === last.date);
   const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: (i + 1) as number | null, last: lastInList && r.date === last!.date }));
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
-  const { height, baseline, markers } = layoutScale(rounds);
+  const { height, baseline, gap, markers } = layoutScale(rounds, avail);
+  const dense = gap < 26;
 
   // Where "Letzter Versuch" stood before: the previous round's line, or above everything
   // (slowest) if that round is no longer among the best 20.
@@ -550,10 +569,17 @@ function scaleSvg(
   // so the bar is only as tall as the slowest round is long.
   parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${baseline}" class="band-empty"/>`);
   const ranked = markers.filter((m) => m.rank !== null);
+  const topY = ranked.at(-1)?.y ?? baseline;
+  const reach = Math.max(1, baseline - topY);
   ranked.forEach((m, k) => {
     const from = k ? ranked[k - 1].y : baseline;
-    parts.push(`<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(from - m.y).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
+    // Colour from the design-system scale by the height of the band's middle: blue (fast) → yellow (slow).
+    const p = Math.round(Math.min(1, Math.max(0, (baseline - (from + m.y) / 2) / reach)) * 100);
+    parts.push(
+      `<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(from - m.y).toFixed(1)}" class="band" data-scale style="fill:color-mix(in oklch, var(--scale-low), var(--accent) ${p}%)"/>`,
+    );
   });
+  parts.push(`<rect x="${BAR_X}" y="${topY.toFixed(1)}" width="${BAR_W}" height="${reach.toFixed(1)}" class="bar-edge"/>`);
 
   markers.forEach((m, i) => {
     const r = rounds[i].r;
@@ -565,7 +591,12 @@ function scaleSvg(
     parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"${fade}/>`);
     if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}"${fade}>${m.rank}</text>`);
     // Right of the centred bar there is only room for the time, so the 10-second result goes below it.
-    const extra = limit ? `<tspan class="tick-extra" x="${TIME_X}" dy="16">${r.inTime}/${r.count}</tspan>` : '';
+    // Below the time when rows have room, otherwise right behind it (dense scale on a small screen).
+    const extra = limit
+      ? dense
+        ? `<tspan class="tick-extra" dx="4">${r.inTime}/${r.count}</tspan>`
+        : `<tspan class="tick-extra" x="${TIME_X}" dy="16">${r.inTime}/${r.count}</tspan>`
+      : '';
     parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
     if (m.last) {
       // The marker: label left of the bar plus a line across it. After a round it travels from the
@@ -583,7 +614,7 @@ function scaleSvg(
   });
 
   const travelling = fromY !== null && markers.some((m) => m.last && Math.abs(fromY! - m.y) > 0.5);
-  return `<svg class="scale-svg${travelling ? ' has-travel' : ''}" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
+  return `<svg class="scale-svg${travelling ? ' has-travel' : ''}${dense ? ' dense' : ''}" width="${SVG_W}" height="${height.toFixed(0)}" viewBox="0 0 ${SVG_W} ${height.toFixed(0)}" role="img" aria-label="Highscore-Skala">${parts.join('')}</svg>`;
 }
 
 function updateScoreFilter(patch: Partial<RoundConfig>) {
@@ -640,9 +671,13 @@ document.addEventListener('keydown', (e) => {
 function openScores() {
   scoreFilter = { ...(data.lastCfg ?? data.settings) };
   setDropdown(false);
-  renderScores();
+  // Show first: the scale measures the height that is left on screen.
   show('scores');
+  renderScores();
 }
+window.addEventListener('resize', () => {
+  if (currentView === 'scores') renderScores();
+});
 $('scores-open').addEventListener('click', openScores);
 $('result-scores').addEventListener('click', openScores);
 $('scores-back').addEventListener('click', () => {

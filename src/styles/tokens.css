@@ -18,6 +18,7 @@
   /* Shape rule: NO corner radius anywhere – all elements are sharp rectangles. Tokens kept (=0) so every component
      references them and the rule can be changed in one place. Only exception: the rotating loading spinner. */
   --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-full: 0;
+  --radius-btn: 2px;   /* owner decision: buttons (incl. segmented control, chips, keys) get slightly rounded outer corners */
   --control-h-sm: 28px; --control-h-md: 36px; --control-h-lg: 44px;
   --sidebar-w: 240px; --sidebar-w-collapsed: 56px; --content-max: 72rem;
 

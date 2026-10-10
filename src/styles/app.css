@@ -47,7 +47,7 @@ p { margin: var(--space-1) 0 0; }
   height: var(--control-h-lg);
   padding: 0 var(--space-5);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-btn);
   background: var(--surface);
   color: var(--text);
   font: var(--weight-medium) var(--text-base) var(--font-sans);
@@ -64,11 +64,11 @@ button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px
 /* Choosing among peers: the active option carries the yellow signal, inactive ones recede –
    never black vs. white, where it is unclear which one is active (design-system rule). */
 /* The yellow fill is ONE sliding .sel-marker (not a fill on the buttons) so the selection travels from A to B. */
-.segmented { position: relative; display: flex; background: var(--surface-2); border: 1px solid var(--border-strong); }
+.segmented { position: relative; display: flex; border-radius: var(--radius-btn); background: var(--surface-2); border: 1px solid var(--border-strong); }
 .segmented button { position: relative; z-index: 1; flex: 1; border: 0; background: none; color: var(--text-muted); }
 .segmented button:hover:not([aria-pressed="true"]) { background: var(--border); color: var(--text); }
 .segmented button[aria-pressed="true"] { color: var(--accent-ink); }
-.segmented .sel-marker { background: var(--accent); border: 1px solid var(--accent-edge); }
+.segmented .sel-marker { border-radius: var(--radius-btn); background: var(--accent); border: 1px solid var(--accent-edge); }
 
 .summary { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2) var(--space-4); margin: 0; }
 .summary dt { color: var(--text-muted); }

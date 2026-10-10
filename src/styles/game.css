@@ -98,11 +98,6 @@ strong { font-weight: var(--weight-medium); }
 .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent-edge); }
 .switch[aria-checked="true"]::after { transform: translateX(1.5rem); background: var(--accent-ink); }
 
-.record-line { margin: 0; display: grid; }
-.record-label { font-size: var(--text-xs); color: var(--text-muted); }
-.record-line strong, .record-none { white-space: nowrap; font-size: min(var(--text-md), 4vw); }
-.record-line strong { color: var(--text); font-family: var(--font-mono); }
-.record-none { color: var(--text-muted); }
 
 .home-actions { display: grid; gap: var(--space-2); }
 /* ONE button spec: same height, same label (Inter 500, --text-base, centred) for every labelled button; only colour differs. */

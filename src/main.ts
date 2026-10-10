@@ -90,13 +90,6 @@ function renderHome() {
   });
 
   const cfg = effectiveConfig();
-  const best = data.history[recordKey(cfg)]?.[0];
-  // Always two lines (label above, value below, value never wraps) so the height never changes and
-  // nothing below it jumps when mode or variant change.
-  $('record-line').innerHTML = best
-    ? `<span class="record-label">Rekord</span><strong>${cfg.variant === 'limit' ? `${best.inTime}/${best.count} rechtzeitig · ` : ''}${formatMs(best.totalMs)}</strong>`
-    : '<span class="record-label">Rekord</span><span class="record-none">Noch keiner – leg los!</span>';
-
   const focus = currentFocus(cfg);
   const practice = $<HTMLButtonElement>('practice-home');
   setShown(practice, focus.length > 0);

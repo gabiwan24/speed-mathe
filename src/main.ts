@@ -536,10 +536,12 @@ function scaleSvg(
     const y = m.y.toFixed(1);
     const fresh = anim && m.last ? ' is-new' : '';
     const cls = m.rank === 1 ? 'tick tick-best' : m.rank === null ? 'tick tick-outside' : 'tick';
-    parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"/>`);
-    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}">${m.rank}</text>`);
+    // Slower rounds fade out: the whole row (line, place, time) gets paler with the time.
+    const fade = m.fade < 1 ? ` style="opacity:${m.fade.toFixed(2)}"` : '';
+    parts.push(`<path d="M${BAR_X} ${y}H${TICK_END}" class="${cls}${fresh}"${fade}/>`);
+    if (m.rank !== null) parts.push(`<text x="${NUM_X}" y="${y}" class="tick-rank${fresh}"${fade}>${m.rank}</text>`);
     const extra = limit ? `<tspan class="tick-extra"> · ${r.inTime}/${r.count}</tspan>` : '';
-    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}">${formatClock(r.totalMs)}${extra}</text>`);
+    parts.push(`<text x="${TIME_X}" y="${y}" class="tick-time${fresh}"${fade}>${formatClock(r.totalMs)}${extra}</text>`);
     if (m.last) {
       // The marker: label left of the bar plus a line across it. After a round it travels from the
       // previous attempt's height to the new one – down means less time (better), up means worse.

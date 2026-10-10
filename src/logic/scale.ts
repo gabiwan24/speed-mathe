@@ -14,6 +14,8 @@ export interface ScaleInput {
 export interface ScaleMarker extends ScaleInput {
   /** SVG y of the straight marker line; the distance above `baseline` is proportional to the time. */
   y: number;
+  /** Opacity of the row: 1 for the best round, paler the longer the time. The last attempt always stays 1. */
+  fade: number;
 }
 
 export interface ScaleLayout {
@@ -32,6 +34,8 @@ export const SCALE = {
   perEntry: 40,
   /** Minimum distance between two lines so their labels stay readable. */
   gap: 36,
+  /** Opacity of the slowest ranked round (owner rule: the longer the time, the paler the value). */
+  fadeMin: 0.4,
 };
 
 export function layoutScale(items: ScaleInput[]): ScaleLayout {
@@ -60,10 +64,18 @@ export function layoutScale(items: ScaleInput[]): ScaleLayout {
     heights.push(i ? Math.max(linear, heights[i - 1] + SCALE.gap) : linear);
   });
 
+  // Fade follows the time itself (not the line position, which the minimum gap can shift): best = 1,
+  // slowest ranked = fadeMin. The last attempt stays fully visible even when slow, because it is the
+  // value the child came to look at.
+  const vBest = values[0];
+  const vSlow = values[ranked.length - 1] ?? vBest;
+  const fadeFor = (item: ScaleInput, v: number) =>
+    item.last || item.rank === null || vSlow === vBest ? 1 : 1 - (1 - SCALE.fadeMin) * ((v - vBest) / (vSlow - vBest));
+
   const baseline = SCALE.topPad + Math.max(span, heights.at(-1)!);
   return {
     height: baseline + SCALE.basePad,
     baseline,
-    markers: ordered.map((item, i) => ({ ...item, y: baseline - heights[i] })),
+    markers: ordered.map((item, i) => ({ ...item, y: baseline - heights[i], fade: fadeFor(item, values[i]) })),
   };
 }

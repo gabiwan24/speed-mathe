@@ -33,3 +33,4 @@
 2026-10-10 – Scale mirrored: bar grows with time, best (least time) at the bottom, grey room below it, marker moves down when better – owner: less time = better must read as lower.
 2026-10-10 – Colour bar starts at the ground (0 s), line height above it proportional to time; best is the shortest stretch, marker moves down when better – owner: bar must start at the bottom and be shorter for less time.
 2026-10-10 – Default time variant is Stoppuhr, not 10 Sekunden pro Aufgabe – owner request; saved choices stay.
+2026-10-10 – Highscore rows (line, place, time) fade with the time, best 1.0 down to 0.4 for the slowest; last attempt stays fully visible; fade follows time, not line position – owner request; floor 0.4 keeps it readable.

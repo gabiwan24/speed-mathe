@@ -59,4 +59,23 @@ describe('layoutScale', () => {
     const { baseline, markers } = layoutScale([item(30_000, 1, true)]);
     expect(baseline - markers[0].y).toBeCloseTo(SCALE.minSpan);
   });
+
+  it('values get paler the longer the time: best 1, slowest ranked fadeMin, in between linear', () => {
+    const { markers } = layoutScale([item(20_000, 1), item(40_000, 2), item(60_000, 3), item(80_000, 4)]);
+    const fades = markers.map((m) => m.fade);
+    expect(fades[0]).toBe(1);
+    expect(fades[3]).toBeCloseTo(SCALE.fadeMin);
+    expect(fades[1]).toBeGreaterThan(fades[2]);
+    expect(fades[1]).toBeCloseTo(1 - (1 - SCALE.fadeMin) / 3);
+  });
+
+  it('the last attempt and an unranked attempt are never faded', () => {
+    const { markers } = layoutScale([item(20_000, 1), item(80_000, 2, true), item(90_000, null, true)]);
+    expect(markers.map((m) => m.fade)).toEqual([1, 1, 1]);
+  });
+
+  it('a single ranked round or equal times stay fully visible', () => {
+    expect(layoutScale([item(30_000, 1)]).markers[0].fade).toBe(1);
+    expect(layoutScale([item(30_000, 1), item(30_000, 2)]).markers.map((m) => m.fade)).toEqual([1, 1]);
+  });
 });

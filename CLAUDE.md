@@ -14,14 +14,14 @@ Speed-Rechen-PWA für ein Kind der 2. Klasse (Android-Handy, Chrome). Eigene App
 Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-pwa; no backend, localStorage only (`speed-mathe:v1`).
 
 ## Game rules (Regelbuch – do not break)
-- Modes: Verliebte Zahlen (bis 10, Booster bis 20) · Plus bis 20 · Minus bis 20 · Gemischt bis 20 (Booster bis 30). No negative results.
+- Modes: Verliebte Zahlen (bis 10, Booster bis 20) · Plus bis 20 · Minus bis 20 · Bunt gemischt bis 20 (Booster bis 30). No negative results.
 - Verliebte Zahlen in both forms, mixed: `7 + ? = 10` and `? + 7 = 10`.
 - Round lengths: 20 or 30 tasks. Two variants: 10 s per task, or total time stopped.
 - 10 s limit expired → task counts as "zu langsam", round continues (no sudden death).
 - Wrong answer → field shakes, child corrects it, clock keeps running (no penalty screen).
 - Answer is submitted with an OK button (explicit owner decision, no auto-submit).
 - Records only against oneself, per mode + length (+ input method). No profiles, no leaderboards.
-- Highscores: best 20 rounds per setting (`data.history[recordKey]`, best first; [0] = record), drawn as a vertical scale (owner mockup, `src/logic/scale.ts`): height = time, a line per place, coloured bands `--band-1..4` between, "Letzter Versuch" from `data.last`; times as `00:34,12` (`formatClock`) on the scale only.
+- Highscores: best 20 rounds per setting (`data.history[recordKey]`, best first; [0] = record), drawn as a vertical scale (owner mockup, `src/logic/scale.ts`): height = time, a line per place, coloured bands `--band-1..4` between, "Letzter Versuch" from `data.last`; times as `00:34,12` (`formatClock`) on the scale only. Page shows only the 4 mode chips + one options dropdown (length · variant · booster); it always opens on `data.lastCfg` (last played round).
 - Track time + errors per fact → "Knackpunkte" + practice round that mixes slow facts in more often.
 - 3-2-1 countdown before each round. Few +0/+1, no direct repeats, Zehnerübergang mixed in on purpose.
 

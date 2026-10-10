@@ -23,7 +23,7 @@ export const MODES: Record<Mode, ModeInfo> = {
   love: { label: 'Verliebte Zahlen', range: 10, boosterRange: 20 },
   plus: { label: '+ Plus rechnen', range: 20, boosterRange: null },
   minus: { label: '− Minus rechnen', range: 20, boosterRange: null },
-  mixed: { label: 'Gemischt', range: 20, boosterRange: 30 },
+  mixed: { label: 'Bunt gemischt', range: 20, boosterRange: 30 },
 };
 
 export const CROSSING_SHARE = 0.4;

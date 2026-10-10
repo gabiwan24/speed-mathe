@@ -28,7 +28,7 @@
           <span class="mode-name">− Minus rechnen</span><span class="mode-range" data-range="minus"></span>
         </button>
         <button type="button" class="mode" role="radio" data-mode="mixed">
-          <span class="mode-name">Gemischt</span><span class="mode-range" data-range="mixed"></span>
+          <span class="mode-name">Bunt gemischt</span><span class="mode-range" data-range="mixed"></span>
         </button>
       </div>
 
@@ -123,6 +123,7 @@
       <div class="home-actions">
         <button type="button" class="btn-primary btn-big" id="again">Nochmal</button>
         <button type="button" class="btn btn-big" id="practice" hidden>Knackpunkte üben</button>
+        <button type="button" class="btn btn-big" id="result-scores">Highscores</button>
         <button type="button" class="btn btn-big" id="menu">Menü</button>
       </div>
     </section>
@@ -139,16 +140,12 @@
       <!-- Small, quiet filter chips: the scale is the content, not the controls. -->
       <div class="filters">
         <div class="chips" id="scores-modes" role="radiogroup" aria-label="Modus"></div>
-        <div class="chips">
-          <div class="chips" data-score-setting="length" role="group" aria-label="Aufgaben">
-            <button type="button" class="chip" data-value="20">20 Aufgaben</button>
-            <button type="button" class="chip" data-value="30">30 Aufgaben</button>
-          </div>
-          <div class="chips" data-score-setting="variant" role="group" aria-label="Zeit">
-            <button type="button" class="chip" data-value="limit">10 Sekunden pro Aufgabe</button>
-            <button type="button" class="chip" data-value="clock">Stoppuhr</button>
-          </div>
-          <button type="button" class="chip" id="scores-booster" aria-pressed="false"></button>
+        <div class="dropdown" id="scores-options">
+          <button type="button" class="dropdown-trigger" id="scores-options-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="scores-options-label"></span>
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" /></svg>
+          </button>
+          <ul class="dropdown-menu" id="scores-options-menu" role="listbox" aria-label="Optionen"></ul>
         </div>
       </div>
 

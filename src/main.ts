@@ -340,6 +340,7 @@ function finishRound() {
   const s = session!;
   stopLoop();
   const summary = s.round.summary();
+  data.lastCfg = s.cfg;
   data.stats = addResults(data.stats, s.round.results);
 
   let imp: Improvement | null = null;
@@ -451,19 +452,18 @@ $('scores-modes').innerHTML = modeIds
 
 function renderScores() {
   const f = withBooster(scoreFilter);
-  const info = MODES[f.mode];
 
   document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
     b.setAttribute('aria-checked', String(b.dataset.scoreMode === f.mode));
   });
-  const booster = $('scores-booster');
-  booster.hidden = info.boosterRange === null;
-  booster.textContent = info.boosterRange ? `Booster bis ${info.boosterRange}` : '';
-  booster.setAttribute('aria-pressed', String(f.booster));
-  document.querySelectorAll<HTMLElement>('[data-score-setting]').forEach((group) => {
-    const k = group.dataset.scoreSetting as 'length' | 'variant';
-    group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === String(f[k]))));
-  });
+  $('scores-options-label').textContent = optionLabel(f);
+  $('scores-options-menu').innerHTML = optionsFor(f.mode)
+    .map((c, i) => {
+      const selected = recordKey(c) === recordKey(f);
+      const empty = !data.history[recordKey(c)]?.length;
+      return `<li><button type="button" class="dropdown-item${empty ? ' empty' : ''}" role="option" aria-selected="${selected}" data-option="${i}">${optionLabel(c)}</button></li>`;
+    })
+    .join('');
 
   const key = recordKey(f);
   const list = data.history[key] ?? [];
@@ -526,21 +526,51 @@ function updateScoreFilter(patch: Partial<RoundConfig>) {
 document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
   b.addEventListener('click', () => updateScoreFilter({ mode: b.dataset.scoreMode as Mode }));
 });
-$('scores-booster').addEventListener('click', () => updateScoreFilter({ booster: !withBooster(scoreFilter).booster }));
-document.querySelectorAll<HTMLElement>('[data-score-setting]').forEach((group) => {
-  group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
-    b.addEventListener('click', () => {
-      const v = b.dataset.value!;
-      updateScoreFilter(group.dataset.scoreSetting === 'length' ? { length: Number(v) as 20 | 30 } : { variant: v as RoundConfig['variant'] });
-    });
-  });
+// ---- options dropdown (length, time variant, booster) ----
+
+const optionLabel = (c: RoundConfig) =>
+  [c.booster ? `Booster bis ${MODES[c.mode].boosterRange}` : '', `${c.length} Aufgaben`, c.variant === 'limit' ? '10 Sekunden pro Aufgabe' : 'Stoppuhr']
+    .filter(Boolean)
+    .join(' · ');
+
+function optionsFor(mode: Mode): RoundConfig[] {
+  const boosters = MODES[mode].boosterRange === null ? [false] : [false, true];
+  const out: RoundConfig[] = [];
+  for (const booster of boosters)
+    for (const length of [20, 30] as const)
+      for (const variant of ['limit', 'clock'] as const) out.push({ mode, booster, length, variant });
+  return out;
+}
+
+const dropdown = $('scores-options');
+function setDropdown(open: boolean) {
+  dropdown.classList.toggle('open', open);
+  $('scores-options-btn').setAttribute('aria-expanded', String(open));
+}
+$('scores-options-btn').addEventListener('click', () => setDropdown(!dropdown.classList.contains('open')));
+$('scores-options-menu').addEventListener('click', (e) => {
+  const item = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-option]');
+  if (!item) return;
+  const c = optionsFor(withBooster(scoreFilter).mode)[Number(item.dataset.option)];
+  setDropdown(false);
+  updateScoreFilter(c);
 });
-$('scores-open').addEventListener('click', () => {
-  // Opens on the setting the child is playing right now.
-  scoreFilter = { ...data.settings };
+document.addEventListener('click', (e) => {
+  if (!dropdown.contains(e.target as Node)) setDropdown(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setDropdown(false);
+});
+
+/** Always opens on the setting of the last played round, so nothing has to be chosen first. */
+function openScores() {
+  scoreFilter = { ...(data.lastCfg ?? data.settings) };
+  setDropdown(false);
   renderScores();
   show('scores');
-});
+}
+$('scores-open').addEventListener('click', openScores);
+$('result-scores').addEventListener('click', openScores);
 $('scores-back').addEventListener('click', () => {
   renderHome();
   show('home');

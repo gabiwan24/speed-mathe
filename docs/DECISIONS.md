@@ -23,3 +23,6 @@
 2026-10-10 – Scale shows times as 00:34,12 (owner mockup); everywhere else units stay written out.
 2026-10-10 – Last attempt per setting stored separately and shown as "Letzter Versuch" (dashed when outside the best 20) – the child sees where today's round landed.
 2026-10-10 – Highscore filters as small quiet chips instead of mode tiles/segmented controls – owner: buttons were far too prominent; the scale is the content.
+2026-10-10 – Mode "Gemischt" renamed "Bunt gemischt" everywhere – owner request.
+2026-10-10 – Highscore page: only the 4 mode buttons visible, length/variant/booster in one custom dropdown listing all combinations (empty ones muted) – owner request, calmer page.
+2026-10-10 – Highscore page always opens on the last played setting (persisted lastCfg); result screen gets a Highscores button – owner: no choosing after a game.

@@ -306,7 +306,7 @@ strong { font-weight: var(--weight-medium); }
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .chip:hover { background: var(--surface-2); color: var(--text); }
-.chip[aria-checked="true"], .chip[aria-pressed="true"] { background: var(--surface); border-color: var(--text); color: var(--text); }
+.chip[aria-checked="true"] { background: var(--surface); border-color: var(--text); color: var(--text); }
 .chip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* Highscore scale (owner mockup): height = time, a line per place, coloured bands between. */
@@ -327,3 +327,70 @@ strong { font-weight: var(--weight-medium); }
 .scale-svg .tick-extra { fill: var(--text-muted); font-size: var(--text-sm); }
 .scale-svg .tick-last { font: var(--weight-medium) var(--text-md) var(--font-sans); }
 .scale-empty { color: var(--text-muted); margin: 0; }
+
+/* Options dropdown on the Highscore page: custom panel instead of the native select popup. */
+.dropdown { position: relative; }
+.dropdown-trigger {
+  width: 100%;
+  min-height: var(--control-h-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: var(--weight-regular) var(--text-sm) var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.dropdown-trigger:hover { background: var(--surface-2); }
+.dropdown-trigger:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.dropdown-trigger svg { flex: none; color: var(--text-muted); transition: transform var(--dur-base) var(--ease-out); }
+.dropdown.open .dropdown-trigger { border-color: var(--text); }
+.dropdown.open .dropdown-trigger svg { transform: rotate(180deg); }
+.dropdown-menu {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(-1 * var(--space-1)));
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility var(--dur-base);
+}
+.dropdown.open .dropdown-menu { opacity: 1; visibility: visible; transform: none; }
+.dropdown-item {
+  position: relative;
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: var(--weight-regular) var(--text-sm) var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.dropdown-item:hover { background: var(--surface-2); }
+.dropdown-item.empty { color: var(--text-muted); }
+.dropdown-item::before {
+  content: "";
+  position: absolute;
+  inset: var(--space-1) auto var(--space-1) 0;
+  width: var(--space-1);
+  background: var(--accent);
+  border-right: 1px solid var(--accent-edge);
+  opacity: 0;
+}
+.dropdown-item[aria-selected="true"]::before { opacity: 1; }

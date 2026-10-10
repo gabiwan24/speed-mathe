@@ -31,3 +31,5 @@
 2026-10-10 – After a round the Highscore scale animates once: new value appears, then the "Letzter Versuch" marker travels from the previous attempt to the new one – owner request: see at a glance whether it got better or worse.
 2026-10-10 – Animation order: marker travels first, new value appears after it arrives – owner request.
 2026-10-10 – Scale mirrored: bar grows with time, best (least time) at the bottom, grey room below it, marker moves down when better – owner: less time = better must read as lower.
+2026-10-10 – Colour bar starts at the ground (0 s), line height above it proportional to time; best is the shortest stretch, marker moves down when better – owner: bar must start at the bottom and be shorter for less time.
+2026-10-10 – Default time variant is Stoppuhr, not 10 Sekunden pro Aufgabe – owner request; saved choices stay.

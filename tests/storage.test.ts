@@ -16,6 +16,13 @@ describe('storage', () => {
     expect(load(s)).toEqual(data);
   });
 
+  it('defaults to the stopwatch variant (owner rule); a saved choice is kept', () => {
+    expect(defaults().settings.variant).toBe('clock');
+    const s = memory();
+    s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, settings: { variant: 'limit' } }));
+    expect(load(s).settings.variant).toBe('limit');
+  });
+
   it('falls back to defaults on garbage, wrong version or throwing storage', () => {
     expect(load({ getItem: () => '{not json' })).toEqual(defaults());
     expect(load({ getItem: () => JSON.stringify({ v: 2 }) })).toEqual(defaults());

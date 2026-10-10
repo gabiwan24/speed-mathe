@@ -511,7 +511,7 @@ function scaleSvg(
   const lastInList = !!last && list.some((r) => r.date === last.date);
   const rounds = list.map((r, i) => ({ r, ms: r.totalMs, rank: (i + 1) as number | null, last: lastInList && r.date === last!.date }));
   if (last && !lastInList) rounds.push({ r: last, ms: last.totalMs, rank: null, last: true });
-  const { height, markers } = layoutScale(rounds);
+  const { height, baseline, markers } = layoutScale(rounds);
 
   // Where "Letzter Versuch" stood before: the previous round's line, or above everything
   // (slowest) if that round is no longer among the best 20.
@@ -522,12 +522,13 @@ function scaleSvg(
   }
 
   const parts: string[] = [];
-  // Empty bottom = room to improve towards 0; above each place a band in the next colour, the last band runs to the top.
-  parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${height}" class="band-empty"/>`);
+  // Grey track from the ground up; the colour starts at the ground and stacks one band per place,
+  // so the bar is only as tall as the slowest round is long.
+  parts.push(`<rect x="${BAR_X}" y="0" width="${BAR_W}" height="${baseline}" class="band-empty"/>`);
   const ranked = markers.filter((m) => m.rank !== null);
   ranked.forEach((m, k) => {
-    const top = ranked[k + 1]?.y ?? 0;
-    parts.push(`<rect x="${BAR_X}" y="${top.toFixed(1)}" width="${BAR_W}" height="${(m.y - top).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
+    const from = k ? ranked[k - 1].y : baseline;
+    parts.push(`<rect x="${BAR_X}" y="${m.y.toFixed(1)}" width="${BAR_W}" height="${(from - m.y).toFixed(1)}" class="band band-${(k % 4) + 1}"/>`);
   });
 
   markers.forEach((m, i) => {

@@ -1,6 +1,7 @@
 /**
- * Geometry for the Highscore scale: a vertical bar that grows with time, like a stopwatch column.
- * Less time is better, so the best round sits at the bottom and slower rounds stack above it.
+ * Geometry for the Highscore scale: a colour bar that starts at the bottom (0 seconds) and
+ * grows with time. Less time is better, so the best round is the shortest stretch above the
+ * ground and slower rounds stack above it.
  */
 
 export interface ScaleInput {
@@ -11,20 +12,22 @@ export interface ScaleInput {
 }
 
 export interface ScaleMarker extends ScaleInput {
-  /** Height of the straight marker line and its labels. */
+  /** SVG y of the straight marker line; the distance above `baseline` is proportional to the time. */
   y: number;
 }
 
 export interface ScaleLayout {
   height: number;
+  /** SVG y of the ground (0 seconds) where the colour bar starts. */
+  baseline: number;
   markers: ScaleMarker[];
 }
 
 export const SCALE = {
-  /** Grey room below the best round: the way still open towards 0. */
-  bestPad: 96,
-  /** Room above the slowest round. */
-  slowPad: 96,
+  /** Grey room above the slowest round. */
+  topPad: 96,
+  /** Room below the ground line for the label of a very short round. */
+  basePad: 40,
   minSpan: 320,
   perEntry: 40,
   /** Minimum distance between two lines so their labels stay readable. */
@@ -32,7 +35,7 @@ export const SCALE = {
 };
 
 export function layoutScale(items: ScaleInput[]): ScaleLayout {
-  if (!items.length) return { height: 0, markers: [] };
+  if (!items.length) return { height: 0, baseline: 0, markers: [] };
 
   const ranked = items.filter((i) => i.rank !== null).sort((a, b) => a.rank! - b.rank!);
   const unranked = items.filter((i) => i.rank === null);
@@ -41,25 +44,26 @@ export function layoutScale(items: ScaleInput[]): ScaleLayout {
   // a longer time (more tasks in time wins), so values are made monotone along the ranks.
   const values: number[] = [];
   for (const item of ranked) values.push(Math.max(item.ms, values.at(-1) ?? -Infinity));
-  // A last attempt outside the best 20 ranks below all of them.
+  // A last attempt outside the best 20 ranks below all of them (= highest line).
   const floor = values.at(-1) ?? -Infinity;
   for (const item of unranked) values.push(Math.max(item.ms, floor));
 
   const ordered = [...ranked, ...unranked];
-  const vmin = Math.min(...values);
-  const vmax = Math.max(...values);
+  const vmax = Math.max(...values, 1);
   const span = Math.max(SCALE.minSpan, ordered.length * SCALE.perEntry);
 
-  // Proportional to time, but lines never closer than SCALE.gap (owner rule: no bent lines,
-  // so a crowded line moves down itself instead of only its label).
-  const markers: ScaleMarker[] = [];
-  ordered.forEach((item, i) => {
-    const linear = SCALE.bestPad + (vmax === vmin ? 0 : ((values[i] - vmin) / (vmax - vmin)) * span);
-    const prev = markers.at(-1);
-    markers.push({ ...item, y: prev ? Math.max(linear, prev.y + SCALE.gap) : linear });
+  // Height above the ground is proportional to time from 0, but lines never sit closer than
+  // SCALE.gap (owner rule: no bent lines, so a crowded line moves up itself).
+  const heights: number[] = [];
+  values.forEach((v, i) => {
+    const linear = (v / vmax) * span;
+    heights.push(i ? Math.max(linear, heights[i - 1] + SCALE.gap) : linear);
   });
 
-  const height = Math.max(SCALE.bestPad + span, markers.at(-1)!.y) + SCALE.slowPad;
-  // Laid out best-first from the top, then mirrored: best at the bottom, slower rounds higher up.
-  return { height, markers: markers.map((m) => ({ ...m, y: height - m.y })) };
+  const baseline = SCALE.topPad + Math.max(span, heights.at(-1)!);
+  return {
+    height: baseline + SCALE.basePad,
+    baseline,
+    markers: ordered.map((item, i) => ({ ...item, y: baseline - heights[i] })),
+  };
 }

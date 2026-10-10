@@ -17,7 +17,7 @@ const KEY = 'speed-mathe:v1';
 
 export const defaults = (): SaveData => ({
   v: 1,
-  settings: { mode: 'love', booster: false, length: 20, variant: 'limit' },
+  settings: { mode: 'love', booster: false, length: 20, variant: 'clock' },
   history: {},
   last: {},
   lastCfg: null,

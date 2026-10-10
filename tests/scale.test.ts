@@ -5,18 +5,29 @@ const item = (ms: number, rank: number | null, last = false) => ({ ms, rank, las
 
 describe('layoutScale', () => {
   it('empty list has no markers', () => {
-    expect(layoutScale([])).toEqual({ height: 0, markers: [] });
+    expect(layoutScale([])).toEqual({ height: 0, baseline: 0, markers: [] });
   });
 
-  it('best (least time) at the bottom, slower rounds higher, height proportional to time', () => {
-    const { height, markers } = layoutScale([item(45_000, 3), item(30_000, 1), item(70_000, 4), item(35_000, 2)]);
+  it('the bar starts at the ground; line height above it is proportional to time from 0', () => {
+    const { baseline, markers } = layoutScale([item(60_000, 3), item(20_000, 1), item(80_000, 4), item(40_000, 2)]);
     expect(markers.map((m) => m.rank)).toEqual([1, 2, 3, 4]);
-    expect(markers[0].y).toBe(height - SCALE.bestPad);
-    const [a, b, c, d] = markers.map((m) => m.y);
-    expect(b).toBeLessThan(a);
-    // 5 s gap vs 10 s gap vs 25 s gap over a 40 s range: all wider than the minimum line distance
-    expect((b - c) / (a - b)).toBeCloseTo(2);
-    expect((c - d) / (a - b)).toBeCloseTo(5);
+    const h = markers.map((m) => baseline - m.y);
+    // 20 : 40 : 60 : 80 seconds, all further apart than the minimum line distance
+    expect(h[1] / h[0]).toBeCloseTo(2);
+    expect(h[2] / h[0]).toBeCloseTo(3);
+    expect(h[3] / h[0]).toBeCloseTo(4);
+  });
+
+  it('the slowest round reaches the top of the bar, best is the shortest stretch', () => {
+    const { baseline, markers } = layoutScale([item(30_000, 1), item(60_000, 2)]);
+    expect(baseline - markers[1].y).toBeCloseTo(SCALE.minSpan);
+    expect(baseline - markers[0].y).toBeCloseTo(SCALE.minSpan / 2);
+  });
+
+  it('keeps grey room above the slowest line and room below the ground', () => {
+    const { height, baseline, markers } = layoutScale([item(30_000, 1), item(40_000, 2)]);
+    expect(markers.at(-1)!.y).toBe(SCALE.topPad);
+    expect(height - baseline).toBe(SCALE.basePad);
   });
 
   it('lines never come closer than the minimum gap, even for nearly equal times', () => {
@@ -26,10 +37,11 @@ describe('layoutScale', () => {
     }
   });
 
-  it('pushing a crowded line keeps the far ones at their time position', () => {
-    const { height, markers } = layoutScale([item(30_000, 1), item(30_010, 2), item(60_000, 3)]);
-    expect(markers[1].y).toBe(height - SCALE.bestPad - SCALE.gap);
-    expect(markers[2].y).toBeCloseTo(height - SCALE.bestPad - SCALE.minSpan);
+  it('crowded lines move up, the bar grows to fit them', () => {
+    const { height, baseline, markers } = layoutScale([item(60_000, 1), item(60_010, 2), item(60_020, 3)]);
+    expect(baseline - markers[2].y).toBeGreaterThan(SCALE.minSpan);
+    expect(markers[2].y).toBe(SCALE.topPad);
+    expect(height).toBe(baseline + SCALE.basePad);
   });
 
   it('10-second variant: positions follow rank even when a better rank took longer', () => {
@@ -43,15 +55,8 @@ describe('layoutScale', () => {
     expect(markers.at(-1)!.y).toBeLessThan(markers[1].y);
   });
 
-  it('leaves room below the best and above the slowest line', () => {
-    const { height, markers } = layoutScale([item(30_000, 1), item(40_000, 2, true)]);
-    expect(height - markers[0].y).toBe(SCALE.bestPad);
-    expect(markers.at(-1)!.y).toBeGreaterThanOrEqual(SCALE.slowPad);
-  });
-
-  it('a single round still renders', () => {
-    const { height, markers } = layoutScale([item(30_000, 1, true)]);
-    expect(markers[0].y).toBe(height - SCALE.bestPad);
-    expect(height).toBeGreaterThan(SCALE.bestPad + SCALE.slowPad);
+  it('a single round fills the span', () => {
+    const { baseline, markers } = layoutScale([item(30_000, 1, true)]);
+    expect(baseline - markers[0].y).toBeCloseTo(SCALE.minSpan);
   });
 });

@@ -16,12 +16,12 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 ## Game rules (Regelbuch – do not break)
 - Modes: Verliebte Zahlen (bis 10, Booster bis 20) · Plus bis 20 · Minus bis 20 · Bunt gemischt bis 20 (Booster bis 30). No negative results.
 - Verliebte Zahlen in both forms, mixed: `7 + ? = 10` and `? + 7 = 10`.
-- Round lengths: 20 or 30 tasks. Two variants: 10 s per task, or total time stopped.
+- Round lengths: 20 or 30 tasks. Two variants: 10 s per task, or total time stopped. Default = Stoppuhr.
 - 10 s limit expired → task counts as "zu langsam", round continues (no sudden death).
 - Wrong answer → field shakes, child corrects it, clock keeps running (no penalty screen).
 - Answer is submitted with an OK button (explicit owner decision, no auto-submit).
 - Records only against oneself, per mode + length (+ input method). No profiles, no leaderboards.
-- Highscores: best 20 rounds per setting (`data.history[recordKey]`, best first; [0] = record), drawn as a vertical scale (owner mockup, `src/logic/scale.ts`): the bar grows with time – best (least time) at the bottom, grey below it = room towards 0, straight lines only (crowded lines move down to a min gap, never bend), coloured bands `--band-1..4` between, "Letzter Versuch" left of the bar from `data.last`; times as `00:34,12` (`formatClock`) on the scale only. Page shows only the 4 mode chips + one options dropdown (length · variant · booster); it always opens on `data.lastCfg` (last played round). First view after a round animates once (`scoreAnim`): the "Letzter Versuch" marker travels from the previous attempt's height first (down = better), then the new value draws in.
+- Highscores: best 20 rounds per setting (`data.history[recordKey]`, best first; [0] = record), drawn as a vertical scale (owner mockup, `src/logic/scale.ts`): the colour bar starts at the ground (0 s) and grows with time – best = shortest stretch above the ground, slowest at the top, grey track above it, straight lines only (crowded lines move down to a min gap, never bend), coloured bands `--band-1..4` between, "Letzter Versuch" left of the bar from `data.last`; times as `00:34,12` (`formatClock`) on the scale only. Page shows only the 4 mode chips + one options dropdown (length · variant · booster); it always opens on `data.lastCfg` (last played round). First view after a round animates once (`scoreAnim`): the "Letzter Versuch" marker travels from the previous attempt's height first (down = better), then the new value draws in.
 - Track time + errors per fact → "Knackpunkte" + practice round that mixes slow facts in more often.
 - 3-2-1 countdown before each round. Few +0/+1, no direct repeats, Zehnerübergang mixed in on purpose.
 

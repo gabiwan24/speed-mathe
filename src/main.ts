@@ -619,14 +619,10 @@ function buildTrack(
   const travels = fromY !== null && lastI >= 0 && Math.abs(fromY - ys[lastI]) > 0.5;
   const travel = (i: number) => (travels && i === lastI ? { cls: ' last-marker travel', style: `--from:${(fromY! - ys[i]).toFixed(1)}px;` } : { cls: '', style: '' });
 
+  // Plain attempts: thin lines at their exact height. Best and last get their heavy line with their chip below.
   rounds.forEach((m, i) => {
-    const marked = i === bestI || i === lastI;
-    const t = travel(i);
-    const left = marked ? markLeft : bl;
-    const width = marked ? BAR_W + 2 * MARK_PAD : BAR_W;
-    parts.push(
-      `<div class="hs-tick${marked ? ' mark' : ''}${m.rank === null ? ' outside' : ''}${t.cls}" style="${t.style}top:${ys[i].toFixed(1)}px;left:${left}px;width:${width}px"></div>`,
-    );
+    if (i === bestI || i === lastI) return;
+    parts.push(`<div class="hs-tick${m.rank === null ? ' outside' : ''}" style="top:${ys[i].toFixed(1)}px;left:${bl}px;width:${BAR_W}px"></div>`);
   });
 
   // Labels: best + last carry a chip and their time, the slowest only its time. They are pushed apart
@@ -640,6 +636,9 @@ function buildTrack(
     const isLast = row.kind === 'last';
     const fresh = anim && isLast ? ' is-new' : '';
     if (row.kind !== 'slow') {
+      // Heavy marker line across the bar, level with its chip (labels pushed apart move their line with them).
+      const tl = isLast ? travel(row.i) : { cls: '', style: '' };
+      parts.push(`<div class="hs-tick mark${tl.cls}" style="${tl.style}top:${y}px;left:${markLeft}px;width:${BAR_W + 2 * MARK_PAD}px"></div>`);
       const text = row.kind === 'best' ? `${STAR_ICON}Dein bester Versuch` : 'Dein letzter Versuch';
       const t = isLast ? travel(row.i) : { cls: '', style: '' };
       parts.push(`<div class="hs-chip${t.cls}" style="${t.style}top:${y}px;right:${W - markLeft}px">${text}</div>`);

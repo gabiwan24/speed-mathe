@@ -21,12 +21,13 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 - Wrong answer → field shakes, child corrects it, clock keeps running (no penalty screen).
 - Answer is submitted with an OK button (explicit owner decision, no auto-submit).
 - Records only against oneself, per mode + length (+ input method). No profiles, no leaderboards.
+- Highscores: best 20 rounds per setting (`data.history[recordKey]`, best first; [0] = record), shown as a vertical timeline, newest on top, bar = speed relative to the fastest.
 - Track time + errors per fact → "Knackpunkte" + practice round that mixes slow facts in more often.
 - 3-2-1 countdown before each round. Few +0/+1, no direct repeats, Zehnerübergang mixed in on purpose.
 
 ## Structure
 - `src/logic/` pure, tested: `tasks.ts` (fact pools, generator), `round.ts` (round state machine, times passed in), `records.ts`, `stats.ts` (Knackpunkte), `storage.ts`, `format.ts`
-- `src/main.ts` all DOM: views home → countdown → play → result, overlays pause/confirm
+- `src/main.ts` all DOM: views home → countdown → play → result, scores (Highscores), overlays pause/confirm
 
 ## Conventions
 - Pure logic framework-free and unit-tested in `tests/`; DOM code stays thin.

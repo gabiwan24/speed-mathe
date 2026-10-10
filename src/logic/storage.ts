@@ -4,7 +4,8 @@ import type { FactStats } from './stats';
 export interface SaveData {
   v: 1;
   settings: RoundConfig;
-  records: Record<string, BestRound>;
+  /** recordKey → best rounds, best first (max HISTORY_SIZE). history[key][0] is the record. */
+  history: Record<string, BestRound[]>;
   stats: FactStats;
 }
 
@@ -13,7 +14,7 @@ const KEY = 'speed-mathe:v1';
 export const defaults = (): SaveData => ({
   v: 1,
   settings: { mode: 'love', booster: false, length: 20, variant: 'limit' },
-  records: {},
+  history: {},
   stats: {},
 });
 
@@ -22,13 +23,14 @@ export function load(storage: Pick<Storage, 'getItem'> | undefined = globalThis.
   try {
     const raw = storage?.getItem(KEY);
     if (!raw) return defaults();
-    const data = JSON.parse(raw) as Partial<SaveData>;
+    const data = JSON.parse(raw) as Partial<SaveData> & { records?: Record<string, BestRound> };
     if (data.v !== 1) return defaults();
     const base = defaults();
     return {
       v: 1,
       settings: { ...base.settings, ...data.settings },
-      records: data.records ?? {},
+      // Early builds stored only the single record per setting; it becomes the first history entry.
+      history: data.history ?? Object.fromEntries(Object.entries(data.records ?? {}).map(([k, r]) => [k, [r]])),
       stats: data.stats ?? {},
     };
   } catch {

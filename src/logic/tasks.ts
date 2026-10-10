@@ -21,8 +21,8 @@ export interface ModeInfo {
 
 export const MODES: Record<Mode, ModeInfo> = {
   love: { label: 'Verliebte Zahlen', range: 10, boosterRange: 20 },
-  plus: { label: 'Plus', range: 20, boosterRange: null },
-  minus: { label: 'Minus', range: 20, boosterRange: null },
+  plus: { label: '+ Plus rechnen', range: 20, boosterRange: null },
+  minus: { label: '− Minus rechnen', range: 20, boosterRange: null },
   mixed: { label: 'Gemischt', range: 20, boosterRange: 30 },
 };
 

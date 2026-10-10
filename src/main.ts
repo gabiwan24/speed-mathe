@@ -2,7 +2,7 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
 import { formatMs, formatTime } from './logic/format';
-import { improvement, recordKey, type Improvement, type RoundConfig } from './logic/records';
+import { addToHistory, improvement, recordKey, type BestRound, type Improvement, type RoundConfig } from './logic/records';
 import { Round, TASK_LIMIT_MS, type TaskResult } from './logic/round';
 import { addResults, focusFacts, roundKnackpunkte } from './logic/stats';
 import { load, save } from './logic/storage';
@@ -19,7 +19,7 @@ const data = load();
 
 // ---------- views ----------
 
-type ViewId = 'home' | 'countdown' | 'play' | 'result';
+type ViewId = 'home' | 'countdown' | 'play' | 'result' | 'scores';
 let currentView: ViewId | null = null;
 
 function show(id: ViewId) {
@@ -68,7 +68,7 @@ function renderHome() {
   });
 
   const cfg = effectiveConfig();
-  const best = data.records[recordKey(cfg)];
+  const best = data.history[recordKey(cfg)]?.[0];
   $('record-line').innerHTML = best
     ? `Rekord: <strong>${cfg.variant === 'limit' ? `${best.inTime}/${best.count} rechtzeitig · ` : ''}${formatMs(best.totalMs)}</strong>`
     : 'Noch kein Rekord – leg los!';
@@ -80,10 +80,8 @@ function renderHome() {
 }
 
 /** Booster is stored per user choice but only applies to modes that have one. */
-function effectiveConfig(): RoundConfig {
-  const s = data.settings;
-  return { ...s, booster: s.booster && MODES[s.mode].boosterRange !== null };
-}
+const withBooster = (c: RoundConfig): RoundConfig => ({ ...c, booster: c.booster && MODES[c.mode].boosterRange !== null });
+const effectiveConfig = () => withBooster(data.settings);
 
 function currentFocus(cfg: RoundConfig): string[] {
   return focusFacts(data.stats, factPool(cfg.mode, cfg.booster).map((f) => f.key));
@@ -344,10 +342,16 @@ function finishRound() {
   data.stats = addResults(data.stats, s.round.results);
 
   let imp: Improvement | null = null;
+  let rank: number | null = null;
   if (!s.practice) {
     const key = recordKey(s.cfg);
-    imp = improvement(s.cfg.variant, summary, data.records[key]);
-    if (imp) data.records[key] = { ...summary, date: new Date().toISOString().slice(0, 10) };
+    const list = data.history[key] ?? [];
+    imp = improvement(s.cfg.variant, summary, list[0]);
+    const entry: BestRound = { totalMs: summary.totalMs, inTime: summary.inTime, count: summary.count, date: new Date().toISOString() };
+    const added = addToHistory(list, entry, s.cfg.variant);
+    data.history[key] = added.list;
+    rank = added.rank;
+    if (rank) latest = { key, date: entry.date };
   }
   save(data);
 
@@ -360,6 +364,10 @@ function finishRound() {
   const badge = $('record-badge');
   badge.hidden = !imp;
   if (imp) badge.textContent = improvementText(imp);
+  // A record already has its badge; other top-20 rounds get their place on the Highscore page.
+  const rankLine = $('result-rank');
+  rankLine.hidden = !rank || !!imp;
+  if (rank) rankLine.textContent = `Platz ${rank} in deinen Highscores`;
 
   // Times show the written-out unit small under the big number so the tiles do not wrap.
   const time = (ms: number) => {
@@ -411,6 +419,105 @@ $('again').addEventListener('click', () => startRound(session?.practice ?? false
 $('practice').addEventListener('click', () => startRound(true, lastFocus));
 $('menu').addEventListener('click', () => {
   session = null;
+  renderHome();
+  show('home');
+});
+
+// ---------- highscores ----------
+
+const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+/** The most recent round that made a top-20 list, highlighted on the Highscore page. */
+let latest: { key: string; date: string } | null = null;
+let scoreFilter: RoundConfig = { ...data.settings };
+
+/** Written out, no abbreviations: "10. Oktober 2026, 17:05 Uhr". Early entries only have a day. */
+function formatDate(iso: string): string {
+  if (!iso.includes('T')) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return `${d}. ${MONTHS[m - 1]} ${y}`;
+  }
+  const t = new Date(iso);
+  const hh = String(t.getHours()).padStart(2, '0');
+  const mm = String(t.getMinutes()).padStart(2, '0');
+  return `${t.getDate()}. ${MONTHS[t.getMonth()]} ${t.getFullYear()}, ${hh}:${mm} Uhr`;
+}
+
+const modeIds = Object.keys(MODES) as Mode[];
+$('scores-modes').innerHTML = modeIds
+  .map(
+    (m) =>
+      `<button type="button" class="mode" role="radio" data-score-mode="${m}"><span class="mode-name">${MODES[m].label}</span><span class="mode-range" data-score-range="${m}"></span></button>`,
+  )
+  .join('');
+
+function renderScores() {
+  const f = withBooster(scoreFilter);
+  const info = MODES[f.mode];
+
+  document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
+    b.setAttribute('aria-checked', String(b.dataset.scoreMode === f.mode));
+  });
+  document.querySelectorAll<HTMLElement>('[data-score-range]').forEach((el) => {
+    const m = el.dataset.scoreRange as Mode;
+    el.textContent = `bis ${rangeOf(m, m === f.mode && f.booster)}`;
+  });
+  $('scores-booster-row').hidden = info.boosterRange === null;
+  $('scores-booster-range').textContent = info.boosterRange ? `bis ${info.boosterRange}` : '';
+  $('scores-booster').setAttribute('aria-checked', String(f.booster));
+  document.querySelectorAll<HTMLElement>('[data-score-setting]').forEach((group) => {
+    const k = group.dataset.scoreSetting as 'length' | 'variant';
+    group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === String(f[k]))));
+  });
+
+  const key = recordKey(f);
+  const list = data.history[key] ?? [];
+  const timeline = $('timeline');
+  if (!list.length) {
+    timeline.innerHTML = '<li class="timeline-empty">Noch keine Runde mit dieser Einstellung.</li>';
+    return;
+  }
+  // Bars compare speed: the fastest round fills the bar, slower rounds are shorter.
+  const fastest = Math.min(...list.map((r) => r.totalMs));
+  const entries = list.map((r, i) => ({ r, rank: i + 1 })).sort((a, b) => b.r.date.localeCompare(a.r.date));
+  timeline.innerHTML = entries
+    .map(({ r, rank }, i) => {
+      const isLatest = latest?.key === key && latest.date === r.date;
+      const cls = ['entry', rank === 1 ? 'best' : '', isLatest ? 'latest' : ''].join(' ').trim();
+      const width = r.totalMs > 0 ? fastest / r.totalMs : 1;
+      const value = `${f.variant === 'limit' ? `${r.inTime} von ${r.count} rechtzeitig · ` : ''}${formatMs(r.totalMs)}`;
+      return `<li class="${cls}" style="--i:${i}">
+        <div class="entry-head"><span class="entry-date">${formatDate(r.date)}</span><span class="entry-rank">${rank === 1 ? 'Rekord' : `Platz ${rank}`}</span></div>
+        <div class="entry-bar"><div class="entry-fill" style="--w:${width.toFixed(4)}"></div></div>
+        <div class="entry-value">${isLatest ? '<span class="entry-new">Neu</span>' : ''}${value}</div>
+      </li>`;
+    })
+    .join('');
+}
+
+function updateScoreFilter(patch: Partial<RoundConfig>) {
+  scoreFilter = { ...scoreFilter, ...patch };
+  renderScores();
+}
+
+document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
+  b.addEventListener('click', () => updateScoreFilter({ mode: b.dataset.scoreMode as Mode }));
+});
+$('scores-booster').addEventListener('click', () => updateScoreFilter({ booster: !withBooster(scoreFilter).booster }));
+document.querySelectorAll<HTMLElement>('[data-score-setting]').forEach((group) => {
+  group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+    b.addEventListener('click', () => {
+      const v = b.dataset.value!;
+      updateScoreFilter(group.dataset.scoreSetting === 'length' ? { length: Number(v) as 20 | 30 } : { variant: v as RoundConfig['variant'] });
+    });
+  });
+});
+$('scores-open').addEventListener('click', () => {
+  // Opens on the setting the child is playing right now.
+  scoreFilter = { ...data.settings };
+  renderScores();
+  show('scores');
+});
+$('scores-back').addEventListener('click', () => {
   renderHome();
   show('home');
 });

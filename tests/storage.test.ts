@@ -11,7 +11,7 @@ describe('storage', () => {
     const s = memory();
     const data = defaults();
     data.settings.mode = 'mixed';
-    data.records['x'] = { totalMs: 1, inTime: 1, count: 20, date: '2026-10-10' };
+    data.history['x'] = [{ totalMs: 1, inTime: 1, count: 20, date: '2026-10-10T15:00:00.000Z' }];
     save(data, s);
     expect(load(s)).toEqual(data);
   });
@@ -27,6 +27,13 @@ describe('storage', () => {
     const s = memory();
     s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, settings: { mode: 'plus' } }));
     expect(load(s).settings).toEqual({ ...defaults().settings, mode: 'plus' });
+  });
+
+  it('migrates the old single record into history', () => {
+    const s = memory();
+    const rec = { totalMs: 5000, inTime: 20, count: 20, date: '2026-10-10' };
+    s.setItem('speed-mathe:v1', JSON.stringify({ v: 1, records: { k: rec } }));
+    expect(load(s).history).toEqual({ k: [rec] });
   });
 
   it('save swallows storage errors', () => {

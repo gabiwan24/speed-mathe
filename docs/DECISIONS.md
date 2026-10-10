@@ -17,3 +17,5 @@
 2026-10-10 – Time units written out ("5,0 Sekunden", "1:05,3 Minuten", "10 Sekunden pro Aufgabe") – owner rule, no abbreviations for the child.
 2026-10-10 – Practice rounds show no clock, only the 10-s bar where the variant needs it – owner rule, practice without time pressure display.
 2026-10-10 – Public repo gabiwan24/speed-mathe, GitHub Pages via Actions – owner request, fixed URL for the phone.
+2026-10-10 – Highscore page keeps the best 20 rounds per setting, shown chronologically (newest on top) with speed bars – owner request: see the development; replaces the single record (migrated on load).
+2026-10-10 – Mode buttons read "+ Plus rechnen" and "− Minus rechnen" – owner request.

@@ -22,10 +22,10 @@
           <span class="mode-name">Verliebte Zahlen</span><span class="mode-range" data-range="love"></span>
         </button>
         <button type="button" class="mode" role="radio" data-mode="plus">
-          <span class="mode-name">Plus</span><span class="mode-range" data-range="plus"></span>
+          <span class="mode-name">+ Plus rechnen</span><span class="mode-range" data-range="plus"></span>
         </button>
         <button type="button" class="mode" role="radio" data-mode="minus">
-          <span class="mode-name">Minus</span><span class="mode-range" data-range="minus"></span>
+          <span class="mode-name">− Minus rechnen</span><span class="mode-range" data-range="minus"></span>
         </button>
         <button type="button" class="mode" role="radio" data-mode="mixed">
           <span class="mode-name">Gemischt</span><span class="mode-range" data-range="mixed"></span>
@@ -58,6 +58,7 @@
       <div class="home-actions">
         <button type="button" class="btn-primary btn-big" id="go">Los</button>
         <button type="button" class="btn btn-big" id="practice-home" hidden>Knackpunkte üben</button>
+        <button type="button" class="btn btn-big" id="scores-open">Highscores</button>
       </div>
       <a class="footer-link muted" href="sprachtest.html">Sprachtest</a>
     </section>
@@ -110,6 +111,7 @@
         <h1 id="result-title">Geschafft!</h1>
       </header>
       <div class="record-badge" id="record-badge" hidden></div>
+      <p class="rank-line" id="result-rank" hidden></p>
 
       <dl class="result-stats" id="result-stats"></dl>
 
@@ -123,6 +125,41 @@
         <button type="button" class="btn btn-big" id="practice" hidden>Knackpunkte üben</button>
         <button type="button" class="btn btn-big" id="menu">Menü</button>
       </div>
+    </section>
+
+    <!-- Highscores: best 20 rounds per setting on a vertical timeline, newest on top -->
+    <section class="view page" id="scores" hidden>
+      <header class="scores-head">
+        <button type="button" class="icon-btn" id="scores-back" aria-label="Zurück" title="Zurück" data-tip="Zurück">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" /></svg>
+        </button>
+        <h1>Highscores</h1>
+      </header>
+
+      <div class="modes modes-compact" id="scores-modes" role="radiogroup" aria-label="Modus"></div>
+
+      <div class="setting" id="scores-booster-row">
+        <span class="setting-label">Booster <span class="muted" id="scores-booster-range"></span></span>
+        <button type="button" class="switch" role="switch" id="scores-booster" aria-checked="false" aria-labelledby="scores-booster-row" title="Booster: größere Zahlen" data-tip="Booster: größere Zahlen"></button>
+      </div>
+
+      <div class="setting">
+        <span class="setting-label">Aufgaben</span>
+        <div class="segmented" data-score-setting="length" role="group" aria-label="Aufgaben">
+          <button type="button" data-value="20">20</button>
+          <button type="button" data-value="30">30</button>
+        </div>
+      </div>
+
+      <div class="setting setting-wide">
+        <span class="setting-label">Zeit</span>
+        <div class="segmented" data-score-setting="variant" role="group" aria-label="Zeit">
+          <button type="button" data-value="limit">10 Sekunden pro Aufgabe</button>
+          <button type="button" data-value="clock">Stoppuhr</button>
+        </div>
+      </div>
+
+      <ol class="timeline" id="timeline"></ol>
     </section>
 
     <!-- Pause overlay (app went to background) -->

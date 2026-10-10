@@ -22,11 +22,29 @@ export function recordKey(cfg: RoundConfig, input: Input = 'tap'): string {
   return [cfg.mode, cfg.booster ? 'boost' : 'base', cfg.length, cfg.variant, input].join('|');
 }
 
-/** Limit variant: more tasks in time wins, then less time. Stopwatch: less time wins. */
+/** Best rounds kept per setting for the Highscore page. */
+export const HISTORY_SIZE = 20;
+
+type Scored = Pick<BestRound, 'totalMs' | 'inTime'>;
+
+/** Negative when a is better. Limit variant: more tasks in time wins, then less time. Stopwatch: less time wins. */
+export function compareRounds(variant: Variant, a: Scored, b: Scored): number {
+  if (variant === 'limit' && a.inTime !== b.inTime) return b.inTime - a.inTime;
+  return a.totalMs - b.totalMs;
+}
+
 export function isBetter(variant: Variant, s: RoundSummary, best: BestRound | undefined): boolean {
-  if (!best) return true;
-  if (variant === 'limit' && s.inTime !== best.inTime) return s.inTime > best.inTime;
-  return s.totalMs < best.totalMs;
+  return !best || compareRounds(variant, s, best) < 0;
+}
+
+/**
+ * Inserts a finished round into the best-first list and keeps the best HISTORY_SIZE.
+ * rank is 1-based, or null when the round did not make the list. Ties keep the older round ahead.
+ */
+export function addToHistory(list: BestRound[], entry: BestRound, variant: Variant): { list: BestRound[]; rank: number | null } {
+  const next = [...list, entry].sort((a, b) => compareRounds(variant, a, b)).slice(0, HISTORY_SIZE);
+  const i = next.indexOf(entry);
+  return { list: next, rank: i < 0 ? null : i + 1 };
 }
 
 export type Improvement =

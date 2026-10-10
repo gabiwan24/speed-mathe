@@ -2,6 +2,7 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
 import { formatClock, formatMs, formatTime } from './logic/format';
+import { hideAnimated, showAnimated } from './motion.js';
 import { ballPlan, ballShades, type BallGroup } from './logic/balls';
 import { layoutScale, SCALE } from './logic/scale';
 import { starsFor, starsText } from './logic/stars';
@@ -44,6 +45,21 @@ const rangeOf = (mode: Mode, booster: boolean) => {
   return booster && info.boosterRange ? info.boosterRange : info.range;
 };
 
+/**
+ * Show or hide an element of the home screen. While the home screen is on view the change is animated
+ * (design-system rule: nothing snaps – the row fades out and the rest glides up, or the reverse);
+ * otherwise (first render, coming back from another screen) it is set directly.
+ */
+function setShown(el: HTMLElement, shown: boolean) {
+  if (currentView !== 'home') {
+    el.hidden = !shown;
+    return;
+  }
+  // showAnimated also cancels a fade-out that is still running, so quick toggling stays consistent.
+  if (shown) showAnimated(el);
+  else void hideAnimated(el);
+}
+
 function renderHome() {
   const s = data.settings;
   const info = MODES[s.mode];
@@ -59,7 +75,7 @@ function renderHome() {
   });
 
   // Modes without a booster simply do not show the switch.
-  $('booster-row').hidden = info.boosterRange === null;
+  setShown($('booster-row'), info.boosterRange !== null);
   $('booster-range').textContent = info.boosterRange ? `bis ${info.boosterRange}` : '';
   $('booster').setAttribute('aria-checked', String(boosterOn));
 
@@ -72,13 +88,15 @@ function renderHome() {
 
   const cfg = effectiveConfig();
   const best = data.history[recordKey(cfg)]?.[0];
+  // Always two lines (label above, value below, value never wraps) so the height never changes and
+  // nothing below it jumps when mode or variant change.
   $('record-line').innerHTML = best
-    ? `Rekord: <strong>${cfg.variant === 'limit' ? `${best.inTime}/${best.count} rechtzeitig · ` : ''}${formatMs(best.totalMs)}</strong>`
-    : 'Noch kein Rekord – leg los!';
+    ? `<span class="record-label">Rekord</span><strong>${cfg.variant === 'limit' ? `${best.inTime}/${best.count} rechtzeitig · ` : ''}${formatMs(best.totalMs)}</strong>`
+    : '<span class="record-label">Rekord</span><span class="record-none">Noch keiner – leg los!</span>';
 
   const focus = currentFocus(cfg);
   const practice = $<HTMLButtonElement>('practice-home');
-  practice.hidden = focus.length === 0;
+  setShown(practice, focus.length > 0);
   practice.textContent = `Knackpunkte üben (${focus.length})`;
 }
 

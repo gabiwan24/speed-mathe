@@ -48,3 +48,6 @@
 2026-10-10 – Design system: new call-to-action colour --cta (electric blue; dark theme lighter blue with black text) replaces yellow as the primary button, because yellow now marks active states – owner request.
 2026-10-10 – Two-line tiles centre their whole text block vertically – owner request.
 2026-10-10 – "Letzter Versuch" is one line and highlighted (yellow chip = active signal, heavy marker line, bold place/time) – owner request.
+2026-10-10 – Elements that appear or disappear on the home screen (booster row, practice button) fade and the rest glides, via design-system showAnimated/hideAnimated (200 ms); the design system got these helpers plus the rule that hidden-toggles are size changes too – owner request: always traceable by motion.
+2026-10-10 – Record line on the home screen is a fixed two-line block (label + value, value never wraps) – the old one-or-two-line text made everything below jump.
+2026-10-10 – No light-yellow flash/tint on appearing elements; removed from the design system defaults (animateLayout/showAnimated flashNew=false, rule 2 rewritten); flash() stays only for committed edits and submit errors – owner request.

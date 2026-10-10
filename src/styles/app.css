@@ -44,7 +44,7 @@ p { margin: var(--space-1) 0 0; }
 
 .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .btn, .btn-primary, .segmented button {
-  height: var(--control-h-lg);
+  height: var(--btn-h, var(--control-h-lg));
   padding: 0 var(--space-5);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-btn);

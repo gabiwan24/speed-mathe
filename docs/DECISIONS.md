@@ -60,3 +60,4 @@
 2026-10-11 – Option rows on the home screen share one grid (label column + one control column): all segmented controls have the same edges and all 6 segments the same width; chosen over content-driven widths because edges look precise and equal segments are large equal touch targets for a child. Cost accepted: narrower segments on phones (long label wraps to 2 lines, solved with 8px side padding). Rule added to the design system.
 2026-10-11 – Buttons get slightly rounded outer corners (--radius-btn 4px: .btn, segmented control + marker, chips, keys, mode tiles); everything else stays sharp – owner decision, also in design system
 2026-10-11 – Button radius raised from 2px to 4px – owner decision
+2026-10-11 – One button spec: same height (--btn-h), label Inter 500 --text-base centred, no big/small variants, no mono/left-aligned labels, chips as equal-width grid – owner: too many different buttons

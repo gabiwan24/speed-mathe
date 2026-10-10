@@ -29,7 +29,8 @@ strong { font-weight: var(--weight-medium); }
   gap: var(--space-1);
   min-height: clamp(3.5rem, 9dvh, 5.5rem);
   padding: var(--space-2) var(--space-3);
-  text-align: left;
+  text-align: center;
+  justify-items: center;
   /* The whole text block (title + range) is centred vertically, not only the first line. */
   align-content: center;
   background: var(--surface);
@@ -53,8 +54,8 @@ strong { font-weight: var(--weight-medium); }
 .mode:hover { background: var(--surface-2); }
 .mode[aria-checked="true"] { border-color: var(--text); }
 .mode[aria-checked="true"]::before { opacity: 1; }
-.mode-name { font-size: var(--text-md); font-weight: var(--weight-medium); }
-.mode-range { font-family: var(--font-mono); color: var(--text-muted); font-size: var(--text-sm); }
+.mode-name { font-size: var(--text-base); font-weight: var(--weight-medium); }
+.mode-range { color: var(--text-muted); font-size: var(--text-base); font-weight: var(--weight-medium); }
 
 /* Option rows share one grid (design-system rule): one label column (as wide as the longest label) and one
    control column; every group has the same edges, every segment the same width. */
@@ -104,12 +105,14 @@ strong { font-weight: var(--weight-medium); }
 .record-none { color: var(--text-muted); }
 
 .home-actions { display: grid; gap: var(--space-2); }
-.btn-big { width: 100%; height: clamp(2.5rem, 6dvh, 3.5rem); font-size: var(--text-lg); }
+/* ONE button spec: same height, same label (Inter 500, --text-base, centred) for every labelled button; only colour differs. */
+:root { --btn-h: clamp(2.5rem, 5.8dvh, 3rem); }
+.btn-big { width: 100%; height: var(--btn-h); }
 /* Second row of actions: two or three smaller buttons side by side. */
 .actions-row { display: flex; gap: var(--space-2); }
 .actions-row > * { flex: 1; min-width: 0; }
-.btn-big.btn-sm { height: clamp(2.5rem, 5.8dvh, 3rem); font-size: var(--text-sm); line-height: 1.15; padding: 0 var(--space-2); }
-.page .segmented button { height: clamp(2.5rem, 5.5dvh, 2.75rem); }
+.btn-big.btn-sm { line-height: 1.15; padding: 0 var(--space-2); }
+.page .segmented button { height: var(--btn-h); }
 .btn-danger { color: var(--danger); }
 .footer-link { justify-self: center; font-size: var(--text-sm); color: var(--text-muted); }
 
@@ -226,7 +229,7 @@ strong { font-weight: var(--weight-medium); }
   border-radius: var(--radius-btn);
   background: var(--surface);
   color: var(--text);
-  font: var(--weight-medium) var(--text-3xl) var(--font-mono);
+  font: var(--weight-medium) var(--text-3xl) var(--font-sans);
   cursor: pointer;
   touch-action: manipulation;
   transition: background var(--dur-fast) var(--ease-out);
@@ -327,15 +330,15 @@ strong { font-weight: var(--weight-medium); }
 #scores.page { grid-template-rows: auto auto minmax(0, 1fr); }
 
 .filters { display: grid; gap: var(--space-2); }
-.chips { display: flex; flex-wrap: wrap; gap: var(--space-1-5); }
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }   /* equal-width, like the mode tiles */
 .chip {
-  height: var(--control-h-sm);
+  height: var(--btn-h);
   padding: 0 var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-btn);
   background: transparent;
   color: var(--text-muted);
-  font: var(--weight-regular) var(--text-sm) var(--font-sans);
+  font: var(--weight-medium) var(--text-base) var(--font-sans);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
@@ -368,24 +371,25 @@ strong { font-weight: var(--weight-medium); }
 .dropdown { position: relative; }
 .dropdown-trigger {
   width: 100%;
-  min-height: var(--control-h-md);
+  position: relative;
+  min-height: var(--btn-h);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: var(--space-2);
   padding: var(--space-1-5) var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-btn);
   background: var(--surface);
   color: var(--text);
-  font: var(--weight-regular) var(--text-sm) var(--font-sans);
-  text-align: left;
+  font: var(--weight-medium) var(--text-base) var(--font-sans);
+  text-align: center;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .dropdown-trigger:hover { background: var(--surface-2); }
 .dropdown-trigger:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-.dropdown-trigger svg { flex: none; color: var(--text-muted); transition: transform var(--dur-base) var(--ease-out); }
+.dropdown-trigger svg { position: absolute; right: var(--space-3); flex: none; color: var(--text-muted); transition: transform var(--dur-base) var(--ease-out); }
 .dropdown.open .dropdown-trigger { border-color: var(--text); }
 .dropdown.open .dropdown-trigger svg { transform: rotate(180deg); }
 .dropdown-menu {

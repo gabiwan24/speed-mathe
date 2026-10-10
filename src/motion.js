@@ -92,3 +92,21 @@ export function showAnimated(el, { duration = token("--dur-base"), easing = EASE
   if (!el.hidden) return;
   animateLayout(el.parentElement, () => { el.hidden = false; }, { duration, easing, flashNew });
 }
+
+/**
+ * Selection marker that slides: the highlight of a group of peer buttons (segmented control, chips, tiles)
+ * travels from the old to the new option instead of jumping. `marker` is an absolutely positioned element
+ * (class `sel-marker`, see components.css) inside `group` (position: relative); `target` is the selected option.
+ * The first placement and a group that is not visible (display:none) are set without animation.
+ */
+export function slideMarker(group, marker, target, { animate = true } = {}) {
+  if (!group.offsetWidth || !target) { marker.classList.remove("placed"); return; }
+  const animated = animate && marker.classList.contains("placed");
+  if (!animated) marker.classList.add("no-anim");
+  marker.style.width = `${target.offsetWidth}px`;
+  marker.style.height = `${target.offsetHeight}px`;
+  marker.style.transform = `translate(${target.offsetLeft}px, ${target.offsetTop}px)`;
+  marker.classList.add("placed");
+  if (!animated) { void marker.offsetWidth; marker.classList.remove("no-anim"); }
+}
+

@@ -2,6 +2,7 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/game.css';
 import { formatClock, formatMs, formatTime } from './logic/format';
+import { addSlidingMarker, syncMarkers } from './markers';
 import { hideAnimated, showAnimated } from './motion.js';
 import { ballPlan, ballShades, type BallGroup } from './logic/balls';
 import { layoutScale, SCALE } from './logic/scale';
@@ -36,6 +37,8 @@ function show(id: ViewId) {
   el.classList.add('enter');
   currentView = id;
   window.scrollTo(0, 0);
+  // Markers of a view that was hidden are placed directly (no slide from a stale position).
+  syncMarkers(false);
 }
 
 // ---------- home ----------
@@ -98,6 +101,8 @@ function renderHome() {
   const practice = $<HTMLButtonElement>('practice-home');
   setShown(practice, focus.length > 0);
   practice.textContent = `Knackpunkte üben (${focus.length})`;
+  // The yellow selection fill / frame slides to the newly selected option.
+  syncMarkers(currentView === 'home');
 }
 
 /** Booster is stored per user choice but only applies to modes that have one. */
@@ -507,6 +512,7 @@ $('scores-modes').innerHTML = modeIds
       `<button type="button" class="chip" role="radio" data-score-mode="${m}">${MODES[m].label}</button>`,
   )
   .join('');
+addSlidingMarker($('scores-modes'), '[aria-checked="true"]');
 
 /** Only combinations that already have rounds; unplayed ones are not shown at all (owner rule). */
 const playedOptions = (mode: Mode) => optionsFor(mode).filter((c) => data.history[recordKey(c)]?.length);
@@ -524,6 +530,7 @@ function renderScores() {
   document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
     b.setAttribute('aria-checked', String(b.dataset.scoreMode === f.mode));
   });
+  syncMarkers(currentView === 'scores');
   $('scores-options').hidden = !options.length;
   $('scores-options-label').textContent = optionLabel(f);
   $('scores-options-menu').innerHTML = options
@@ -698,6 +705,7 @@ function openScores() {
   renderScores();
 }
 window.addEventListener('resize', () => {
+  syncMarkers(false);
   if (currentView === 'scores') renderScores();
 });
 $('scores-open').addEventListener('click', openScores);
@@ -728,6 +736,10 @@ document.addEventListener('keydown', (e) => {
   else return;
   e.preventDefault();
 });
+
+document.querySelectorAll<HTMLElement>('#home .segmented').forEach((g) => addSlidingMarker(g, '[aria-pressed="true"]'));
+addSlidingMarker($('home').querySelector<HTMLElement>('.modes')!, '.mode[aria-checked="true"]');
+void document.fonts?.ready.then(() => syncMarkers(false));
 
 renderHome();
 show('home');

@@ -63,11 +63,12 @@ button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px
 
 /* Choosing among peers: the active option carries the yellow signal, inactive ones recede –
    never black vs. white, where it is unclear which one is active (design-system rule). */
-.segmented { display: flex; }
-.segmented button { position: relative; flex: 1; background: var(--surface-2); color: var(--text-muted); }
-.segmented button + button { margin-left: -1px; }
+/* The yellow fill is ONE sliding .sel-marker (not a fill on the buttons) so the selection travels from A to B. */
+.segmented { position: relative; display: flex; background: var(--surface-2); border: 1px solid var(--border-strong); }
+.segmented button { position: relative; z-index: 1; flex: 1; border: 0; background: none; color: var(--text-muted); }
 .segmented button:hover:not([aria-pressed="true"]) { background: var(--border); color: var(--text); }
-.segmented button[aria-pressed="true"] { z-index: 1; background: var(--accent); color: var(--accent-ink); border-color: var(--accent-edge); }
+.segmented button[aria-pressed="true"] { color: var(--accent-ink); }
+.segmented .sel-marker { background: var(--accent); border: 1px solid var(--accent-edge); }
 
 .summary { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2) var(--space-4); margin: 0; }
 .summary dt { color: var(--text-muted); }
@@ -79,3 +80,9 @@ th, td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--
 th { color: var(--text-muted); font-weight: var(--weight-medium); }
 td.num { font-family: var(--font-mono); text-align: right; }
 td.transcript { color: var(--text-muted); word-break: break-word; }
+
+/* Sliding selection marker (design-system components.css): shape and colour come from the component. */
+.sel-marker { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; transition: transform var(--dur-view) var(--ease-fluid), width var(--dur-view) var(--ease-fluid), height var(--dur-view) var(--ease-fluid); }
+.sel-marker.placed { visibility: visible; }
+.sel-marker.no-anim { transition: none; }
+

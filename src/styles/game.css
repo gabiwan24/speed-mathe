@@ -22,7 +22,7 @@ strong { font-weight: var(--weight-medium); }
 
 .home-head h1 { font-size: clamp(1.5rem, 4.4dvh, var(--text-3xl)); }
 
-.modes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.modes { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 .mode {
   position: relative;
   display: grid;
@@ -40,19 +40,7 @@ strong { font-weight: var(--weight-medium); }
   font: inherit;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.mode::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--space-1-5);
-  background: var(--accent);
-  border-right: 1px solid var(--accent-edge);
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-out);
-}
 .mode:hover { background: var(--surface-2); }
-.mode[aria-checked="true"] { border-color: var(--text); }
-.mode[aria-checked="true"]::before { opacity: 1; }
 .mode-name { font-size: var(--text-md); font-weight: var(--weight-medium); }
 .mode-range { font-family: var(--font-mono); color: var(--text-muted); font-size: var(--text-sm); }
 
@@ -323,8 +311,10 @@ strong { font-weight: var(--weight-medium); }
 #scores.page { grid-template-rows: auto auto minmax(0, 1fr); }
 
 .filters { display: grid; gap: var(--space-2); }
-.chips { display: flex; flex-wrap: wrap; gap: var(--space-1-5); }
+.chips { position: relative; display: flex; flex-wrap: wrap; gap: var(--space-1-5); }
 .chip {
+  position: relative;
+  z-index: 1;
   height: var(--control-h-sm);
   padding: 0 var(--space-3);
   border: 1px solid var(--border);
@@ -336,7 +326,7 @@ strong { font-weight: var(--weight-medium); }
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .chip:hover { background: var(--surface-2); color: var(--text); }
-.chip[aria-checked="true"] { background: var(--surface); border-color: var(--text); color: var(--text); }
+.chip[aria-checked="true"] { border-color: transparent; color: var(--text); }   /* frame + fill come from the sliding marker */
 .chip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* Highscore scale (owner mockup): height = time, a line per place, coloured bands between. */
@@ -475,3 +465,10 @@ strong { font-weight: var(--weight-medium); }
 .stars-why li { display: flex; gap: var(--space-1); font-size: var(--text-xs); color: var(--text-muted); }
 .stars-plus { font-family: var(--font-mono); font-weight: var(--weight-medium); color: var(--text); }
 .stars-total { margin-left: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-1-5); font: var(--weight-medium) var(--text-md) var(--font-sans); }
+
+/* ---------- sliding selection markers (design-system .sel-marker, motion.js slideMarker) ---------- */
+
+.chips .sel-marker { background: var(--surface); border: 1px solid var(--text); }
+/* Tiles: a frame with the yellow bar travels over the tiles; the tiles themselves stay plain. */
+.modes .sel-marker { z-index: 2; border: 1px solid var(--text); }
+.modes .sel-marker::before { content: ""; position: absolute; inset: -1px auto -1px -1px; width: var(--space-1-5); background: var(--accent); border-right: 1px solid var(--accent-edge); }

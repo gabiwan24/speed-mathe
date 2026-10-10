@@ -63,3 +63,4 @@
 2026-10-11 – One button spec: same height (--btn-h), label Inter 500 --text-base centred, no big/small variants, no mono/left-aligned labels, chips as equal-width grid – owner: too many different buttons
 2026-10-11 – Two button label sizes allowed: --text-base for all, --text-lg for the primary CTA (Los) only; same height – owner decision
 2026-10-11 – Highscore redesigned: one hero + bar fitted to saved times (not from 0), only best/last/slowest time labelled, yellow fast at bottom, tap/drag selects an attempt, hero fixed height – owner: old 20-row scale far too complicated
+2026-10-11 – Highscore: white hero box removed, times shown on the scale (hover/tap); all times in whole seconds, no tenths (formatMs) – owner decision

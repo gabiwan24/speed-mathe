@@ -348,21 +348,8 @@ strong { font-weight: var(--weight-medium); }
 .chip[aria-checked="true"] { background: var(--surface); border-color: var(--text); color: var(--text); }
 .chip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
-/* Highscore track (owner design): hero with the selected time + a bar fitted to the saved times. */
-.scale { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--space-3); min-height: 0; overflow: hidden; }
-.hs-hero {
-  height: clamp(6rem, 14dvh, 7rem);
-  padding: var(--space-2) var(--space-3);
-  display: grid;
-  align-content: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-.hs-hero p { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hs-label { font-size: var(--text-xs); color: var(--text-muted); }
-.hs-value { font-size: var(--text-2xl); font-weight: var(--weight-medium); line-height: 1.15; font-variant-numeric: tabular-nums; }
-.hs-sub { font-size: var(--text-base); color: var(--text-muted); }
+/* Highscore track (owner design): a bar fitted to the saved times; times are labelled on the scale only. */
+.scale { display: grid; grid-template-rows: minmax(0, 1fr); min-height: 0; overflow: hidden; }
 .hs-track { position: relative; min-height: 0; touch-action: none; cursor: pointer; user-select: none; }
 .hs-bar, .hs-band, .hs-bar-edge, .hs-tick { position: absolute; }
 .hs-bar { top: 0; bottom: 0; background: var(--border); }
@@ -387,6 +374,11 @@ strong { font-weight: var(--weight-medium); }
 }
 .hs-time { position: absolute; translate: 0 -50%; font-size: var(--text-sm); color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .hs-time.key { color: var(--text); font-weight: var(--weight-medium); }
+.hs-time { transition: opacity var(--dur-fast) var(--ease-out); }
+.hs-time.covered { opacity: 0; }
+.hs-tip { color: var(--text); font-weight: var(--weight-medium); opacity: 0; pointer-events: none; }
+.hs-tip.on { opacity: 1; }
+.hs-tip-sub { display: block; font-weight: var(--weight-regular); color: var(--text-muted); font-size: var(--text-xs); }
 .scale-empty { color: var(--text-muted); margin: 0; }
 
 /* Options dropdown on the Highscore page: custom panel instead of the native select popup. */
@@ -457,9 +449,9 @@ strong { font-weight: var(--weight-medium); }
 .dropdown-item[aria-selected="true"]::before { opacity: 1; }
 
 /* After a round: the last-attempt marker travels first, then the new value appears (owner rule). */
-.hs-time.is-new, .hs-hero.is-new { animation: fade-in var(--dur-view) var(--ease-out) var(--dur-view) both; }
+.hs-time.is-new { animation: fade-in var(--dur-view) var(--ease-out) var(--dur-view) both; }
 .last-marker.travel { animation: travel var(--dur-highlight) var(--ease-fluid) var(--dur-view) both; }
-.scale.has-travel .hs-time.is-new, .scale.has-travel .hs-hero.is-new { animation-delay: calc(var(--dur-view) + var(--dur-highlight)); }
+.scale.has-travel .hs-time.is-new { animation-delay: calc(var(--dur-view) + var(--dur-highlight)); }
 @keyframes travel {
   from { transform: translateY(var(--from)); }
 }

@@ -548,16 +548,13 @@ function renderScores() {
   // Only the first look at a freshly played setting animates; later filter changes render still.
   const anim = scoreAnim?.key === key ? scoreAnim : null;
   if (anim) scoreAnim = null;
-  // Hero (fixed height, so the track never jumps) + track, which gets exactly the height that is left on screen.
-  box.innerHTML = '<div class="hs-hero" id="hs-hero"></div><div class="hs-track" id="hs-track"></div>';
+  // The track gets exactly the height that is left on screen.
+  box.innerHTML = '<div class="hs-track" id="hs-track"></div>';
   buildTrack(key, data.history[key], data.last[key], f.variant === 'limit', anim);
 }
 
 /** Set when a round finishes: the scale then shows the new value appearing and the marker travelling. */
 let scoreAnim: { key: string; prev: BestRound | undefined } | null = null;
-
-/** Attempt selected on the track by tap or drag; the hero above it shows its time. Default: last attempt. */
-let scoreSel: { key: string; idx: number } | null = null;
 
 const BAR_W = 30;
 /** The marker lines of the best and the last attempt stick out left and right of the bar. */
@@ -567,9 +564,9 @@ const LABEL_H = 24;
 const STAR_ICON = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M12 2l3 6.9 7.5.7-5.6 5 1.7 7.4L12 18l-6.6 4 1.7-7.4-5.6-5 7.5-.7z" fill="currentColor"/></svg>';
 
 /**
- * Highscore track (owner design): one hero with the selected time, and a bar fitted to the saved times
- * (yellow = fast at the bottom, blue = slow on top). Only the best and the last attempt carry a marker line
- * and a chip, plus the slowest time as a bare value; every other attempt is a plain line you can tap or drag over.
+ * Highscore track (owner design): a bar fitted to the saved times (yellow = fast at the bottom, blue = slow on top).
+ * Only the best and the last attempt carry a marker line and a chip, plus the slowest time as a bare value;
+ * every other attempt is a plain line whose time appears on the scale while the mouse hovers it (touch: tap or drag).
  */
 function buildTrack(
   key: string,
@@ -648,54 +645,55 @@ function buildTrack(
   track.innerHTML = parts.join('');
   $('scale').classList.toggle('has-travel', travels);
 
-  // Hero: the selected attempt (default: the last one, else the record).
-  const sel = () => (scoreSel?.key === key && scoreSel.idx < rounds.length ? scoreSel.idx : lastI >= 0 ? lastI : bestI);
-  const hero = $('hs-hero');
-  const ticks = [...track.querySelectorAll<HTMLElement>('.hs-tick')];
-  const paint = (fresh: boolean) => {
-    const i = sel();
+  // Hover/tap: the time of the nearest attempt appears on the scale at its line (persistent labels it would
+  // cover fade out meanwhile).
+  const ticks = [...track.querySelectorAll<HTMLElement>('.hs-tick:not(.mark)')];
+  const tickOf = new Map<number, HTMLElement>();
+  rounds.forEach((_, i) => {
+    if (i !== bestI && i !== lastI) tickOf.set(i, ticks.shift()!);
+  });
+  const persistent = [...track.querySelectorAll<HTMLElement>('.hs-time')].map((el, k) => ({ el, y: rowY[k] }));
+  const tip = document.createElement('div');
+  tip.className = 'hs-time hs-tip';
+  track.appendChild(tip);
+  tip.style.left = `${timeLeft}px`;
+  let shown = -1;
+  const showTip = (i: number) => {
+    if (i === shown) return;
+    shown = i;
+    tickOf.forEach((e, k) => e.classList.toggle('sel', k === i));
+    const y = ys[i];
+    persistent.forEach((pl) => pl.el.classList.toggle('covered', i >= 0 && Math.abs(pl.y - y) < LABEL_H));
     const m = rounds[i];
-    const isBest = i === bestI;
-    const head =
-      m.last && isBest
-        ? 'Dein letzter Versuch · Rekord'
-        : m.last
-          ? `Dein letzter Versuch${m.rank ? ` · Platz ${m.rank}` : ''}`
-          : isBest
-            ? 'Dein bester Versuch'
-            : `Platz ${m.rank}`;
-    const sub = limit
-      ? `${m.r.inTime} von ${m.r.count} richtig`
-      : isBest
-        ? 'Das ist dein Rekord.'
-        : `${formatMs(m.ms - rounds[bestI].ms)} langsamer als der Rekord`;
-    hero.innerHTML = `<p class="hs-label">${head}</p><p class="hs-value">${formatMs(m.ms)}</p><p class="hs-sub">${sub}</p>`;
-    hero.classList.toggle('is-new', fresh);
-    ticks.forEach((e, k) => e.classList.toggle('sel', k === i && !e.classList.contains('mark')));
+    tip.style.top = `${Math.min(H - LABEL_H / 2, Math.max(LABEL_H / 2, y)).toFixed(1)}px`;
+    tip.innerHTML = formatMs(m.ms) + (limit ? `<span class="hs-tip-sub">${m.r.inTime} von ${m.r.count} richtig</span>` : '');
+    tip.classList.add('on');
   };
-  paint(!!anim);
-
+  const hideTip = () => {
+    shown = -1;
+    tickOf.forEach((e) => e.classList.remove('sel'));
+    persistent.forEach((pl) => pl.el.classList.remove('covered'));
+    tip.classList.remove('on');
+  };
   const pick = (ev: PointerEvent) => {
     const py = ev.clientY - track.getBoundingClientRect().top;
     let b = 0;
     ys.forEach((y, i) => {
       if (Math.abs(y - py) < Math.abs(ys[b] - py)) b = i;
     });
-    if (sel() === b) return;
-    scoreSel = { key, idx: b };
-    paint(false);
+    // Best, last and slowest already show their time; only the other attempts need the extra label.
+    if (b === bestI || b === lastI || b === slowI) hideTip();
+    else showTip(b);
   };
-  let down = false;
   track.onpointerdown = (e) => {
-    down = true;
     track.setPointerCapture?.(e.pointerId);
     pick(e);
   };
   track.onpointermove = (e) => {
-    if (down || e.pointerType === 'mouse') pick(e);
+    if (e.buttons || e.pointerType === 'mouse') pick(e);
   };
-  track.onpointerup = track.onpointercancel = () => {
-    down = false;
+  track.onpointerleave = (e) => {
+    if (e.pointerType === 'mouse') hideTip();
   };
 }
 
@@ -752,7 +750,6 @@ document.addEventListener('keydown', (e) => {
 /** Always opens on the setting of the last played round, so nothing has to be chosen first. */
 function openScores() {
   scoreFilter = { ...(data.lastCfg ?? data.settings) };
-  scoreSel = null;
   setDropdown(false);
   // Show first: the scale measures the height that is left on screen.
   show('scores');

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Speed-Mathe · Sprachtest</title>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Sprachtest</h1>
+        <p class="muted" id="support">Prüfe Spracherkennung …</p>
+        <p class="muted" id="ondevice"></p>
+      </header>
+
+      <div class="segmented" role="group" aria-label="Testart">
+        <button type="button" data-mode="read" aria-pressed="true">Zahl vorlesen</button>
+        <button type="button" data-mode="calc" aria-pressed="false">Aufgabe rechnen</button>
+      </div>
+
+      <section class="card task" aria-live="polite">
+        <div class="prompt" id="prompt">–</div>
+        <div class="heard" id="heard">&nbsp;</div>
+        <div class="state muted" id="state">Bereit</div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" id="start">Start</button>
+        <button type="button" class="btn" id="stop" disabled>Stopp</button>
+        <button type="button" class="btn" id="local" hidden>Offline-Erkennung laden</button>
+      </div>
+
+      <section class="card">
+        <h2>Ergebnis</h2>
+        <dl class="summary" id="summary"></dl>
+      </section>
+
+      <section class="card log">
+        <table>
+          <thead>
+            <tr>
+              <th>Soll</th><th>Gehört</th><th>Erkannt</th><th>Tolerant</th>
+              <th title="Sprechende → Endergebnis">Verz.</th>
+              <th title="Sprechende → erste Zahl im Zwischenergebnis">Früh</th>
+            </tr>
+          </thead>
+          <tbody id="log"></tbody>
+        </table>
+      </section>
+    </main>
+    <script type="module" src="/src/speech-test.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#fbff00" />
+    <meta name="description" content="Rechnen auf Zeit: Verliebte Zahlen, Plus und Minus bis 20" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <title>Speed-Mathe</title>
+  </head>
+  <body>
+    <!-- Home -->
+    <section class="view page" id="home" hidden>
+      <header class="home-head">
+        <h1>Speed-Mathe</h1>
+      </header>
+
+      <div class="modes" role="radiogroup" aria-label="Modus">
+        <button type="button" class="mode" role="radio" data-mode="love">
+          <span class="mode-name">Verliebte Zahlen</span><span class="mode-range" data-range="love"></span>
+        </button>
+        <button type="button" class="mode" role="radio" data-mode="plus">
+          <span class="mode-name">Plus</span><span class="mode-range" data-range="plus"></span>
+        </button>
+        <button type="button" class="mode" role="radio" data-mode="minus">
+          <span class="mode-name">Minus</span><span class="mode-range" data-range="minus"></span>
+        </button>
+        <button type="button" class="mode" role="radio" data-mode="mixed">
+          <span class="mode-name">Gemischt</span><span class="mode-range" data-range="mixed"></span>
+        </button>
+      </div>
+
+      <div class="setting" id="booster-row">
+        <span class="setting-label">Booster <span class="muted" id="booster-range"></span></span>
+        <button type="button" class="switch" role="switch" id="booster" aria-checked="false" aria-labelledby="booster-row" title="Booster: größere Zahlen" data-tip="Booster: größere Zahlen"></button>
+      </div>
+
+      <div class="setting">
+        <span class="setting-label">Aufgaben</span>
+        <div class="segmented" data-setting="length" role="group" aria-label="Aufgaben">
+          <button type="button" data-value="20">20</button>
+          <button type="button" data-value="30">30</button>
+        </div>
+      </div>
+
+      <div class="setting setting-wide">
+        <span class="setting-label">Zeit</span>
+        <div class="segmented" data-setting="variant" role="group" aria-label="Zeit">
+          <button type="button" data-value="limit">10 Sekunden pro Aufgabe</button>
+          <button type="button" data-value="clock">Stoppuhr</button>
+        </div>
+      </div>
+
+      <p class="record-line" id="record-line"></p>
+
+      <div class="home-actions">
+        <button type="button" class="btn-primary btn-big" id="go">Los</button>
+        <button type="button" class="btn btn-big" id="practice-home" hidden>Knackpunkte üben</button>
+      </div>
+      <a class="footer-link muted" href="sprachtest.html">Sprachtest</a>
+    </section>
+
+    <!-- Countdown -->
+    <section class="view countdown" id="countdown" hidden>
+      <div class="countdown-num" id="countdown-num">3</div>
+    </section>
+
+    <!-- Play -->
+    <section class="view play" id="play" hidden>
+      <div class="play-top">
+        <button type="button" class="icon-btn" id="quit" aria-label="Runde beenden" title="Runde beenden" data-tip="Runde beenden">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" fill="none" /></svg>
+        </button>
+        <span class="play-progress" id="progress">1 / 20</span>
+        <span class="play-clock" id="clock"></span>
+      </div>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="timebar-track" id="timebar-track" aria-hidden="true"><div class="timebar-fill" id="timebar-fill"></div></div>
+
+      <div class="task-area">
+        <div class="practice-tag muted" id="practice-tag" hidden>Übungsrunde</div>
+        <div class="task" id="task" aria-live="polite"></div>
+        <div class="feedback" id="feedback">&nbsp;</div>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" data-key="back" class="key-back" aria-label="Löschen" title="Löschen" data-tip="Löschen">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5h11v14H9l-6-7z M12 9l5 6M17 9l-5 6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="miter" /></svg>
+        </button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" data-key="ok" class="key-ok">OK</button>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section class="view page" id="result" hidden>
+      <header>
+        <p class="muted" id="result-mode"></p>
+        <h1 id="result-title">Geschafft!</h1>
+      </header>
+      <div class="record-badge" id="record-badge" hidden></div>
+
+      <dl class="result-stats" id="result-stats"></dl>
+
+      <section class="card knack">
+        <h2>Knackpunkte</h2>
+        <ol class="knack-list" id="knack-list"></ol>
+      </section>
+
+      <div class="home-actions">
+        <button type="button" class="btn-primary btn-big" id="again">Nochmal</button>
+        <button type="button" class="btn btn-big" id="practice" hidden>Knackpunkte üben</button>
+        <button type="button" class="btn btn-big" id="menu">Menü</button>
+      </div>
+    </section>
+
+    <!-- Pause overlay (app went to background) -->
+    <div class="overlay" id="pause" hidden>
+      <div class="overlay-box">
+        <h2>Pause</h2>
+        <p class="muted">Die Zeit ist angehalten.</p>
+        <button type="button" class="btn-primary btn-big" id="resume">Weiter</button>
+      </div>
+    </div>
+
+    <!-- Quit confirm -->
+    <div class="overlay" id="confirm" hidden>
+      <div class="overlay-box" role="alertdialog" aria-labelledby="confirm-title">
+        <h2 id="confirm-title">Runde beenden?</h2>
+        <p class="muted">Die Runde zählt dann nicht.</p>
+        <div class="overlay-actions">
+          <button type="button" class="btn-primary btn-big" id="confirm-no">Weiterrechnen</button>
+          <button type="button" class="btn btn-big btn-danger" id="confirm-yes">Beenden</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

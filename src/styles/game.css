@@ -1,0 +1,286 @@
+/* Layout classes like .page set display, which would beat the [hidden] attribute. */
+[hidden] { display: none !important; }
+
+html, body { overscroll-behavior: none; }
+body { -webkit-tap-highlight-color: transparent; }
+strong { font-weight: var(--weight-medium); }
+
+.view.enter { animation: view-in var(--dur-view) var(--ease-fluid) both; }
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(var(--space-3)); }
+}
+
+/* ---------- home ---------- */
+
+.home-head h1 { font-size: var(--text-3xl); }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.mode {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  min-height: 5.5rem;
+  padding: var(--space-4);
+  text-align: left;
+  align-content: end;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font: inherit;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.mode::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--space-1-5);
+  background: var(--accent);
+  border-right: 1px solid var(--accent-edge);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.mode:hover { background: var(--surface-2); }
+.mode[aria-checked="true"] { border-color: var(--text); }
+.mode[aria-checked="true"]::before { opacity: 1; }
+.mode-name { font-size: var(--text-lg); font-weight: var(--weight-medium); }
+.mode-range { font-family: var(--font-mono); color: var(--text-muted); font-size: var(--text-sm); }
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.setting-label { font-size: var(--text-md); }
+.setting .segmented { min-width: 10rem; }
+.setting-wide { flex-wrap: wrap; }
+.setting-wide .segmented { flex: 1 1 16rem; }
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 3.25rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 1.25rem;
+  height: calc(100% - 6px);
+  background: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: transform var(--dur-base) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent-edge); }
+.switch[aria-checked="true"]::after { transform: translateX(1.5rem); background: var(--accent-ink); }
+
+.record-line { margin: 0; font-size: var(--text-md); color: var(--text-muted); }
+.record-line strong { color: var(--text); font-family: var(--font-mono); }
+
+.home-actions { display: grid; gap: var(--space-2); }
+.btn-big { width: 100%; height: 3.5rem; font-size: var(--text-lg); }
+.btn-danger { color: var(--danger); }
+.footer-link { justify-self: center; font-size: var(--text-sm); color: var(--text-muted); }
+
+/* ---------- countdown ---------- */
+
+.countdown {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+.countdown-num { font: var(--weight-medium) 7rem/1 var(--font-mono); }
+.countdown-num.pop { animation: pop var(--dur-slow) var(--ease-out) both; }
+@keyframes pop {
+  from { opacity: 0; transform: scale(1.6); }
+}
+
+/* ---------- play ---------- */
+
+.play {
+  height: 100dvh;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
+  /* Flex, not grid rows: the limit bar is hidden in stopwatch mode and must not shift rows. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  user-select: none;
+}
+.play-top { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-2); }
+.play-progress { font: var(--weight-medium) var(--text-lg) var(--font-mono); text-align: center; }
+.play-clock { min-width: 2.75rem; font: var(--weight-regular) var(--text-lg) var(--font-mono); text-align: right; }
+.icon-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+
+.progress-track { height: 4px; background: var(--surface-2); }
+.progress-fill {
+  height: 100%;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.timebar-track { height: 0.75rem; background: var(--surface); border: 1px solid var(--border-strong); }
+.timebar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-right: 1px solid var(--accent-edge);
+  transform-origin: left;
+  transition: background var(--dur-base) var(--ease-out);
+}
+.timebar-fill.low { background: var(--warning); }
+.timebar-fill.refill { transition: transform var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+
+.task-area { flex: 1; display: grid; align-content: center; justify-items: center; gap: var(--space-3); }
+.practice-tag { font-size: var(--text-sm); }
+.task {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font: var(--weight-medium) clamp(2.75rem, 13vw, 4.5rem)/1 var(--font-mono);
+  white-space: nowrap;
+}
+.task.enter { animation: task-in var(--dur-base) var(--ease-out) both; }
+@keyframes task-in {
+  from { opacity: 0; transform: translateX(var(--space-6)); }
+}
+.slot {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0.08em 0.12em;
+  text-align: center;
+  border: 2px solid var(--text);
+  background: var(--surface);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.slot.empty { color: var(--text-muted); border-color: var(--border-strong); }
+.slot.ok { background: var(--accent-2); border-color: var(--accent-2-edge); color: var(--accent-ink); }
+.slot.bad { color: var(--danger); border-color: var(--danger); animation: shake var(--dur-slow) var(--ease-out); }
+.slot.slow { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+@keyframes shake {
+  20% { transform: translateX(-0.12em); }
+  40% { transform: translateX(0.12em); }
+  60% { transform: translateX(-0.08em); }
+  80% { transform: translateX(0.05em); }
+}
+.feedback { min-height: 1.5em; font-size: var(--text-lg); color: var(--text-muted); }
+.feedback.bad, .feedback.slow { color: var(--danger); }
+
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.keypad button {
+  height: clamp(3.5rem, 9dvh, 4.75rem);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: var(--weight-medium) var(--text-3xl) var(--font-mono);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.keypad button:hover { background: var(--surface-2); }
+.keypad button.tap { animation: tap var(--dur-base) var(--ease-out); }
+@keyframes tap {
+  from { background: var(--border); }
+}
+.keypad .key-back { color: var(--text-muted); }
+.keypad .key-ok {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
+  border-color: var(--accent-edge);
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+}
+.keypad .key-ok:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2-edge); }
+.keypad .key-ok:disabled { opacity: .35; }
+
+/* ---------- result ---------- */
+
+.record-badge {
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent-edge);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+}
+.record-badge.flash { animation: badge-flash var(--dur-highlight) var(--ease-out); }
+@keyframes badge-flash {
+  from { background: var(--accent-2); }
+}
+
+.result-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin: 0; }
+.result-stats div { background: var(--surface); border: 1px solid var(--border); padding: var(--space-3) var(--space-4); }
+.result-stats dt { color: var(--text-muted); font-size: var(--text-sm); }
+.result-stats dd { margin: var(--space-1) 0 0; font: var(--weight-medium) var(--text-2xl) var(--font-mono); }
+.result-stats .unit { display: block; font: var(--weight-regular) var(--text-sm) var(--font-sans); color: var(--text-muted); }
+
+.knack-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.knack-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+.knack-list li:first-child { border-top: 0; }
+.knack-fact { font: var(--weight-medium) var(--text-xl) var(--font-mono); }
+.knack-why { color: var(--text-muted); font-size: var(--text-sm); text-align: right; }
+.knack-none { color: var(--text-muted); }
+
+/* ---------- overlays ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: var(--scrim);
+  animation: fade-in var(--dur-base) var(--ease-out) both;
+}
+.overlay-box {
+  width: min(100%, 22rem);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  animation: view-in var(--dur-view) var(--ease-fluid) both;
+}
+.overlay-box h2 { margin: 0; font-size: var(--text-xl); }
+.overlay-box p { margin: 0; }
+.overlay-actions { display: grid; gap: var(--space-2); }
+@keyframes fade-in {
+  from { opacity: 0; }
+}

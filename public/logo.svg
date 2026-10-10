@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed; marks stay inside the 80 % maskable safe zone. -->
+  <rect width="512" height="512" fill="#fbff00"/>
+  <!-- plus -->
+  <rect x="120" y="170" width="132" height="36" fill="#000"/>
+  <rect x="168" y="122" width="36" height="132" fill="#000"/>
+  <!-- minus -->
+  <rect x="260" y="306" width="132" height="36" fill="#000"/>
+  <!-- speed slash -->
+  <polygon points="300,120 342,120 212,392 170,392" fill="#000"/>
+</svg>

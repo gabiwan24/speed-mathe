@@ -9,7 +9,12 @@ body { -webkit-tap-highlight-color: transparent; }
 strong { font-weight: var(--weight-medium); }
 
 .view.enter { animation: view-in var(--dur-view) var(--ease-fluid) both; }
+/* Views only fade (design-system rule: no slide, no vertical offset for page content);
+   overlay boxes rise from their anchor instead. */
 @keyframes view-in {
+  from { opacity: 0; }
+}
+@keyframes rise-in {
   from { opacity: 0; transform: translateY(var(--space-3)); }
 }
 
@@ -182,8 +187,9 @@ strong { font-weight: var(--weight-medium); }
 /* app.css styles .task as the speech-test card (32px padding); the equation must not inherit that. */
 .task-area .task { padding: 0; }
 .task.enter { animation: task-in var(--dur-base) var(--ease-out) both; }
+/* A new task fades in where it stands – nothing slides in from the side (design-system rule). */
 @keyframes task-in {
-  from { opacity: 0; transform: translateX(var(--space-6)); }
+  from { opacity: 0; }
 }
 .slot {
   display: inline-block;
@@ -299,7 +305,7 @@ strong { font-weight: var(--weight-medium); }
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
-  animation: view-in var(--dur-view) var(--ease-fluid) both;
+  animation: rise-in var(--dur-view) var(--ease-fluid) both;
 }
 .overlay-box h2 { margin: 0; font-size: var(--text-xl); }
 .overlay-box p { margin: 0; }
@@ -422,14 +428,6 @@ strong { font-weight: var(--weight-medium); }
 
 /* After a round: the "Letzter Versuch" marker travels first, then the new value appears (owner rule). */
 .scale-svg .is-new { animation: fade-in var(--dur-view) var(--ease-out) var(--dur-view) both; }
-.scale-svg path.is-new {
-  transform-box: fill-box;
-  transform-origin: left center;
-  animation: draw-line var(--dur-view) var(--ease-out) var(--dur-view) both;
-}
-@keyframes draw-line {
-  from { transform: scaleX(0); }
-}
 .scale-svg .tick-marker { stroke-width: 4; }
 /* The last attempt stands out: yellow chip (= active signal) with black text and edge, bold place and time. */
 .scale-svg .last-chip { fill: var(--accent); stroke: var(--accent-edge); stroke-width: 1; }

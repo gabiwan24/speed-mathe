@@ -22,3 +22,4 @@
 2026-10-10 – Highscores drawn as a vertical scale per owner mockup (height = time, place lines, 4 coloured bands, grey headroom) instead of cards – owner design overrides the single-accent design system here.
 2026-10-10 – Scale shows times as 00:34,12 (owner mockup); everywhere else units stay written out.
 2026-10-10 – Last attempt per setting stored separately and shown as "Letzter Versuch" (dashed when outside the best 20) – the child sees where today's round landed.
+2026-10-10 – Highscore filters as small quiet chips instead of mode tiles/segmented controls – owner: buttons were far too prominent; the scale is the content.

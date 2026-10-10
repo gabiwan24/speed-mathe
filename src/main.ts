@@ -445,7 +445,7 @@ const modeIds = Object.keys(MODES) as Mode[];
 $('scores-modes').innerHTML = modeIds
   .map(
     (m) =>
-      `<button type="button" class="mode" role="radio" data-score-mode="${m}"><span class="mode-name">${MODES[m].label}</span><span class="mode-range" data-score-range="${m}"></span></button>`,
+      `<button type="button" class="chip" role="radio" data-score-mode="${m}">${MODES[m].label}</button>`,
   )
   .join('');
 
@@ -456,13 +456,10 @@ function renderScores() {
   document.querySelectorAll<HTMLButtonElement>('[data-score-mode]').forEach((b) => {
     b.setAttribute('aria-checked', String(b.dataset.scoreMode === f.mode));
   });
-  document.querySelectorAll<HTMLElement>('[data-score-range]').forEach((el) => {
-    const m = el.dataset.scoreRange as Mode;
-    el.textContent = `bis ${rangeOf(m, m === f.mode && f.booster)}`;
-  });
-  $('scores-booster-row').hidden = info.boosterRange === null;
-  $('scores-booster-range').textContent = info.boosterRange ? `bis ${info.boosterRange}` : '';
-  $('scores-booster').setAttribute('aria-checked', String(f.booster));
+  const booster = $('scores-booster');
+  booster.hidden = info.boosterRange === null;
+  booster.textContent = info.boosterRange ? `Booster bis ${info.boosterRange}` : '';
+  booster.setAttribute('aria-pressed', String(f.booster));
   document.querySelectorAll<HTMLElement>('[data-score-setting]').forEach((group) => {
     const k = group.dataset.scoreSetting as 'length' | 'variant';
     group.querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === String(f[k]))));

@@ -127,7 +127,7 @@
       </div>
     </section>
 
-    <!-- Highscores: best 20 rounds per setting on a vertical timeline, newest on top -->
+    <!-- Highscores: best 20 rounds per setting on a vertical scale (height = time) -->
     <section class="view page" id="scores" hidden>
       <header class="scores-head">
         <button type="button" class="icon-btn" id="scores-back" aria-label="Zurück" title="Zurück" data-tip="Zurück">
@@ -136,26 +136,19 @@
         <h1>Highscores</h1>
       </header>
 
-      <div class="modes modes-compact" id="scores-modes" role="radiogroup" aria-label="Modus"></div>
-
-      <div class="setting" id="scores-booster-row">
-        <span class="setting-label">Booster <span class="muted" id="scores-booster-range"></span></span>
-        <button type="button" class="switch" role="switch" id="scores-booster" aria-checked="false" aria-labelledby="scores-booster-row" title="Booster: größere Zahlen" data-tip="Booster: größere Zahlen"></button>
-      </div>
-
-      <div class="setting">
-        <span class="setting-label">Aufgaben</span>
-        <div class="segmented" data-score-setting="length" role="group" aria-label="Aufgaben">
-          <button type="button" data-value="20">20</button>
-          <button type="button" data-value="30">30</button>
-        </div>
-      </div>
-
-      <div class="setting setting-wide">
-        <span class="setting-label">Zeit</span>
-        <div class="segmented" data-score-setting="variant" role="group" aria-label="Zeit">
-          <button type="button" data-value="limit">10 Sekunden pro Aufgabe</button>
-          <button type="button" data-value="clock">Stoppuhr</button>
+      <!-- Small, quiet filter chips: the scale is the content, not the controls. -->
+      <div class="filters">
+        <div class="chips" id="scores-modes" role="radiogroup" aria-label="Modus"></div>
+        <div class="chips">
+          <div class="chips" data-score-setting="length" role="group" aria-label="Aufgaben">
+            <button type="button" class="chip" data-value="20">20 Aufgaben</button>
+            <button type="button" class="chip" data-value="30">30 Aufgaben</button>
+          </div>
+          <div class="chips" data-score-setting="variant" role="group" aria-label="Zeit">
+            <button type="button" class="chip" data-value="limit">10 Sekunden pro Aufgabe</button>
+            <button type="button" class="chip" data-value="clock">Stoppuhr</button>
+          </div>
+          <button type="button" class="chip" id="scores-booster" aria-pressed="false"></button>
         </div>
       </div>
 

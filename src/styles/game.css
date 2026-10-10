@@ -292,8 +292,22 @@ strong { font-weight: var(--weight-medium); }
 .scores-head { display: flex; align-items: center; gap: var(--space-2); margin-left: calc(-1 * var(--space-2)); }
 .scores-head h1 { font-size: var(--text-3xl); }
 
-.modes-compact .mode { min-height: 4rem; padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4); }
-.modes-compact .mode-name { font-size: var(--text-md); }
+.filters { display: grid; gap: var(--space-2); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-1-5); }
+.chip {
+  height: var(--control-h-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font: var(--weight-regular) var(--text-sm) var(--font-sans);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.chip:hover { background: var(--surface-2); color: var(--text); }
+.chip[aria-checked="true"], .chip[aria-pressed="true"] { background: var(--surface); border-color: var(--text); color: var(--text); }
+.chip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* Highscore scale (owner mockup): height = time, a line per place, coloured bands between. */
 .scale { padding: var(--space-2) 0; }

@@ -476,6 +476,8 @@ strong { font-weight: var(--weight-medium); }
 }
 /* Owner mockup: balls are round – the one exception to the no-radius rule. */
 .ball { display: block; aspect-ratio: 1; border-radius: 50%; background: var(--ball-empty); }
+/* Empty fields get a fine black (light) / white (dark) rim; inset shadow keeps the size identical. */
+.ball.empty { box-shadow: inset 0 0 0 1px var(--text); }
 .ball.a.bright { background: var(--ball-a); }
 .ball.a.deep { background: var(--ball-a-deep); }
 .ball.b.bright { background: var(--ball-b); }

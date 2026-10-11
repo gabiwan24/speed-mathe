@@ -76,3 +76,4 @@
 2026-10-11 – OK key always highlighted in CTA blue (also while empty); the answer field '?' is highlighted yellow with black ink – owner decision
 2026-10-11 – Answer field: only the ? is yellow (black outline on light backgrounds), plain frame in text colour, no fill – owner correction
 2026-10-11 – Answer field: no frame and no colour for the ? / typed number (undoes the yellow ? experiment); OK stays always highlighted – owner decision
+2026-10-11 – Empty ball fields get a fine rim in text colour (black light / white dark) – owner decision

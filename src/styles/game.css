@@ -144,7 +144,10 @@ strong { font-weight: var(--weight-medium); }
 }
 .play-top { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-2); }
 .play-progress { font: var(--weight-medium) var(--text-lg) var(--font-mono); text-align: center; }
-.play-clock { min-width: 2.75rem; font: var(--weight-regular) var(--text-lg) var(--font-mono); text-align: right; }
+/* Small, quiet timer: fixed-width columns (tabular digits) so nothing moves when digits or the unit word change. */
+.play-clock { display: flex; justify-content: flex-end; gap: var(--space-1); font: var(--weight-regular) var(--text-sm) var(--font-sans); font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.clock-val { min-width: 4.5ch; text-align: right; }
+.clock-unit { min-width: 8ch; text-align: left; }
 .icon-btn {
   width: 2.75rem;
   height: 2.75rem;

@@ -146,9 +146,15 @@ export function generateTasks({ mode, booster, count, rng = Math.random, focus =
     const last = tasks[tasks.length - 1];
     let pick: Fact | undefined;
     for (let attempt = 0; attempt < 30; attempt++) {
-      const fresh = candidates().filter(
+      let fresh = candidates().filter(
         (f) => !recent.some((r) => r.key === f.key) && f.answer !== last?.answer,
       );
+      // "7 + ? = 10" and "? + 7 = 10" stay mixed: after two of the same form the other form comes next.
+      const form = (f: Fact) => f.tokens.indexOf('?');
+      if (tasks.length >= 2 && form(tasks[tasks.length - 1]) === form(tasks[tasks.length - 2])) {
+        const other = fresh.filter((f) => f.key.includes('?') && form(f) !== form(last));
+        if (other.length) fresh = other;
+      }
       pick = weightedPick(fresh, rng);
       if (pick) break;
     }

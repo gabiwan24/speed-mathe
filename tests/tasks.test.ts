@@ -137,3 +137,14 @@ describe('solvedText', () => {
     expect(solvedText(minus)).toBe('13 − 6 = 7');
   });
 });
+
+describe('verliebte Zahlen: both forms stay mixed', () => {
+  it('"7 + ? = 10" and "? + 7 = 10" both occur and never three of the same form in a row', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const tasks = generateTasks({ mode: 'love', booster: seed % 2 === 0, count: 20, rng: seeded(seed) });
+      const forms = tasks.map((t) => t.tokens.indexOf('?'));
+      expect(new Set(forms).size).toBe(2);
+      for (let i = 2; i < forms.length; i++) expect(forms[i] === forms[i - 1] && forms[i] === forms[i - 2]).toBe(false);
+    }
+  });
+});

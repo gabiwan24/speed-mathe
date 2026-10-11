@@ -66,3 +66,4 @@
 2026-10-11 – Highscore: white hero box removed, times shown on the scale (hover/tap); all times in whole seconds, no tenths (formatMs) – owner decision
 2026-10-11 – Record line removed from the main menu (records live on the Highscore page only) – owner decision
 2026-10-11 – Home actions (Los, Knackpunkte, Highscores) are pinned to the bottom of the screen; settings stay on top – owner decision
+2026-10-11 – In-round timer much smaller (13px, number + unit in two fixed columns, no jumping); Verliebte Zahlen: both forms '7 + ? = 10' / '? + 7 = 10' kept mixed (never 3 of the same form in a row) – owner decision

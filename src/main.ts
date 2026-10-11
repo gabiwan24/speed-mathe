@@ -318,7 +318,10 @@ function loop() {
       fill.classList.toggle('low', left < 0.3);
     }
   } else if (!s.practice) {
-    $('clock').textContent = formatMs(s.round.totalElapsed(now));
+    // Number and unit sit in two fixed columns, so digits never jump when the unit word or the digit count changes.
+    const t = formatTime(s.round.totalElapsed(now));
+    if ($('clock-val').textContent !== t.value) $('clock-val').textContent = t.value;
+    if ($('clock-unit').textContent !== t.unit) $('clock-unit').textContent = t.unit;
   }
   s.frame = requestAnimationFrame(loop);
 }

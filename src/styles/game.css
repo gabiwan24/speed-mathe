@@ -494,5 +494,7 @@ strong { font-weight: var(--weight-medium); }
 .stars-plus { font-family: var(--font-mono); font-weight: var(--weight-medium); color: var(--text); }
 .stars-total { margin-left: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-1-5); font: var(--weight-medium) var(--text-md) var(--font-sans); }
 
-/* Display choice shown as glyphs: 123 = numbers, OOO = balls (black/white, bold). */
+/* Display choice shown as glyphs: 123 = numbers, three real balls (same look as in the task) = balls. */
 .segmented .glyph { font-size: var(--text-lg); font-weight: var(--weight-medium); letter-spacing: 0.12em; }
+.glyph-balls { display: inline-flex; gap: 0.3rem; }
+.glyph-balls .ball { width: 1.05rem; }

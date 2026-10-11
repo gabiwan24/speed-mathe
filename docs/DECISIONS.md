@@ -73,3 +73,4 @@
 2026-10-11 – Darstellung balls glyph is monochrome (white, grey, black balls), not blue – owner decision
 2026-10-11 – '123' glyph: optical spacing, gap after the 1 widened (0.08em) so 1-2-3 look evenly spaced – owner decision
 2026-10-11 – Dark mode: disabled OK key uses neutral colours instead of faded CTA (black ink on dark blue); no surface hover on OK – bug fix
+2026-10-11 – OK key always highlighted in CTA blue (also while empty); the answer field '?' is highlighted yellow with black ink – owner decision

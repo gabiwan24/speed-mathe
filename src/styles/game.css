@@ -206,13 +206,14 @@ strong { font-weight: var(--weight-medium); }
   min-width: 1.5em;
   padding: 0.08em 0.12em;
   text-align: center;
-  border: 2px solid var(--text);
-  background: var(--surface);
+  /* The answer field is the active spot: highlight yellow (design-system signal colour), black ink. */
+  border: 2px solid var(--accent-edge);
+  background: var(--accent);
+  color: var(--accent-ink);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.slot.empty { color: var(--text-muted); border-color: var(--border-strong); }
 .slot.ok { background: var(--accent-2); border-color: var(--accent-2-edge); color: var(--accent-ink); }
-.slot.bad { color: var(--danger); border-color: var(--danger); animation: shake var(--dur-slow) var(--ease-out); }
+.slot.bad { background: var(--surface); color: var(--danger); border-color: var(--danger); animation: shake var(--dur-slow) var(--ease-out); }
 .slot.slow { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
 @keyframes shake {
   20% { transform: translateX(-0.12em); }
@@ -255,8 +256,8 @@ strong { font-weight: var(--weight-medium); }
   font-size: var(--text-xl);
 }
 .keypad .key-ok:hover:not(:disabled) { background: var(--cta-hover); border-color: var(--cta-hover); }
-/* Disabled OK: explicit neutral colours, not opacity – fading the CTA left black ink on dark blue in dark mode. */
-.keypad .key-ok:disabled { opacity: 1; background: var(--surface-2); color: var(--text-muted); border-color: var(--border-strong); }
+/* OK is always highlighted (CTA blue), also while empty, so the child sees at once where to confirm. */
+.keypad .key-ok:disabled { opacity: 1; cursor: default; }
 
 /* ---------- result ---------- */
 

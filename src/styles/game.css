@@ -495,7 +495,10 @@ strong { font-weight: var(--weight-medium); }
 .stars-total { margin-left: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-1-5); font: var(--weight-medium) var(--text-md) var(--font-sans); }
 
 /* Display choice shown as glyphs: 123 = numbers, three real balls (same look as in the task) = balls. */
-.segmented .glyph { font-size: var(--text-lg); font-weight: var(--weight-medium); letter-spacing: 0.12em; }
+.segmented .glyph { font-size: var(--text-lg); font-weight: var(--weight-medium); }
+/* 1 is a narrow glyph that looks too close to the 2: its gap is widened by hand (optical spacing, owner). */
+.digits { display: inline-flex; gap: 0.12em; }
+.digits .d1 { margin-right: 0.08em; }
 .glyph-balls { display: inline-flex; gap: 0.3rem; }
 .glyph-balls .ball { width: 1.05rem; border: 1px solid var(--text); }
 /* Monochrome on purpose: white, grey, black – the option must not look like a colour choice. */

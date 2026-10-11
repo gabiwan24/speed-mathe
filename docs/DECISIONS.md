@@ -65,3 +65,4 @@
 2026-10-11 – Highscore redesigned: one hero + bar fitted to saved times (not from 0), only best/last/slowest time labelled, yellow fast at bottom, tap/drag selects an attempt, hero fixed height – owner: old 20-row scale far too complicated
 2026-10-11 – Highscore: white hero box removed, times shown on the scale (hover/tap); all times in whole seconds, no tenths (formatMs) – owner decision
 2026-10-11 – Record line removed from the main menu (records live on the Highscore page only) – owner decision
+2026-10-11 – Home actions (Los, Knackpunkte, Highscores) are pinned to the bottom of the screen; settings stay on top – owner decision

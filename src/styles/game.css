@@ -206,12 +206,13 @@ strong { font-weight: var(--weight-medium); }
   min-width: 1.5em;
   padding: 0.08em 0.12em;
   text-align: center;
-  /* The answer field is the active spot: highlight yellow (design-system signal colour), black ink. */
-  border: 2px solid var(--accent-edge);
-  background: var(--accent);
-  color: var(--accent-ink);
+  border: 2px solid var(--text);
+  background: transparent;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
+/* Only the ? is highlighted: yellow glyph in a plain frame. On light backgrounds yellow vanishes, so it gets a
+   black outline there (--accent-edge = the accent itself in dark mode, so the outline disappears). */
+.slot.empty { color: var(--accent); -webkit-text-stroke: 0.035em var(--accent-edge); paint-order: stroke fill; }
 .slot.ok { background: var(--accent-2); border-color: var(--accent-2-edge); color: var(--accent-ink); }
 .slot.bad { background: var(--surface); color: var(--danger); border-color: var(--danger); animation: shake var(--dur-slow) var(--ease-out); }
 .slot.slow { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }

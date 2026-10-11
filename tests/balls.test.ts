@@ -41,7 +41,7 @@ describe('ballPlan', () => {
   });
 
   it('verliebte Zahlen with the blank first: the known part is the second number, so blue', () => {
-    expect(ballPlan(fact('love', '?+7=10'))).toEqual({ groups: [{ color: 'b', filled: 7, slots: 10 }], operator: null });
+    expect(ballPlan(fact('love', '?+7=10'))).toEqual({ groups: [{ color: 'b', filled: 7, slots: 10, fromEnd: true }], operator: null });
   });
 
   it('verliebte Zahlen booster: partners of 20 get two rows', () => {
@@ -79,5 +79,17 @@ describe('ballShades', () => {
 
   it('a full row of ten has a bright and a deep half', () => {
     expect(ballShades({ color: 'a', filled: 10, slots: 10 }).filter((x) => x === 'deep')).toHaveLength(5);
+  });
+});
+
+describe('verliebte Zahlen: balls follow the equation order', () => {
+  it('"7 + ? = 10": filled balls first, gap after', () => {
+    const g = ballPlan(fact('love', '7+?=10')).groups[0];
+    expect(ballShades(g).map((s) => (s === 'empty' ? 'o' : 'x')).join('')).toBe('xxxxxxxooo');
+  });
+
+  it('"? + 4 = 10": gap first, the four balls at the end', () => {
+    const g = ballPlan(fact('love', '?+4=10')).groups[0];
+    expect(ballShades(g).map((s) => (s === 'empty' ? 'o' : 'x')).join('')).toBe('ooooooxxxx');
   });
 });

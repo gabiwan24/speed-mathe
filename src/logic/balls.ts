@@ -13,6 +13,8 @@ export interface BallGroup {
   filled: number;
   /** Fields shown in total (rounded up to full rows of ten); the rest is grey. */
   slots: number;
+  /** Filled balls sit at the END of the field ("? + 4 = 10": the grey gap comes first, like the ? does). */
+  fromEnd?: boolean;
 }
 
 export interface BallPlan {
@@ -32,7 +34,10 @@ export function ballPlan(fact: Fact): BallPlan {
   const [t0, op, t2, , t4] = fact.tokens;
   if (t0 === '?' || t2 === '?') {
     const known = Number(t0 === '?' ? t2 : t0);
-    return { groups: [{ color: t0 === '?' ? 'b' : 'a', filled: known, slots: slotsFor(Number(t4)) }], operator: null };
+    const group: BallGroup = { color: t0 === '?' ? 'b' : 'a', filled: known, slots: slotsFor(Number(t4)) };
+    // The picture follows the equation: "? + 4" shows the open gap first, then the four balls.
+    if (t0 === '?') group.fromEnd = true;
+    return { groups: [group], operator: null };
   }
   const a = Number(t0);
   const b = Number(t2);
@@ -49,7 +54,9 @@ export type Shade = 'bright' | 'deep' | 'empty';
 
 /** Shade per field: the first five of each row are bright, the second five deep, unfilled fields grey. */
 export function ballShades(group: BallGroup): Shade[] {
-  return Array.from({ length: group.slots }, (_, i) =>
-    i >= group.filled ? 'empty' : Math.floor((i % ROW) / BLOCK) === 0 ? 'bright' : 'deep',
-  );
+  return Array.from({ length: group.slots }, (_, i) => {
+    const filled = group.fromEnd ? i >= group.slots - group.filled : i < group.filled;
+    // Shade by the position in the row, so the fives of the ten-frame keep their brightness.
+    return !filled ? 'empty' : Math.floor((i % ROW) / BLOCK) === 0 ? 'bright' : 'deep';
+  });
 }

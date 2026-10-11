@@ -16,7 +16,7 @@ Vite 8 + vanilla TypeScript 6, Vitest 5, @vitejs/plugin-basic-ssl, vite-plugin-p
 ## Game rules (Regelbuch – do not break)
 - Modes: Verliebte Zahlen (bis 10, Booster bis 20) · Plus bis 20 · Minus bis 20 · Bunt gemischt bis 20 (Booster bis 30). No negative results.
 - Verliebte Zahlen in both forms, mixed: `7 + ? = 10` and `? + 7 = 10`.
-- Darstellung: Zahlen or Kugeln (balls). Balls: first number red, second blue (Verliebte Zahlen: one field for the whole, known part filled, rest grey), rows of ten, each row's first five bright and second five deep (`src/logic/balls.ts`, tokens `--ball-*`). Balls keep their own records (`recordKey` suffix `|balls`).
+- Darstellung: Zahlen or Kugeln (balls). Balls: first number red, second blue (Verliebte Zahlen: one field for the whole, known part filled, rest grey; the picture follows the equation: "7 + ? = 10" fills from the start, "? + 4 = 10" shows the grey gap first and the 4 balls at the end), rows of ten, each row's first five bright and second five deep (`src/logic/balls.ts`, tokens `--ball-*`). Balls keep their own records (`recordKey` suffix `|balls`).
 - Round lengths: 20 or 30 tasks. Two variants: 10 s per task, or total time stopped. Default = Stoppuhr.
 - 10 s limit expired → task counts as "zu langsam", round continues (no sudden death).
 - Wrong answer → field shakes, child corrects it, clock keeps running (no penalty screen).

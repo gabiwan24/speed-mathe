@@ -70,3 +70,4 @@
 2026-10-11 – Kugeln for Verliebte Zahlen follow the equation order: '? + 4 = 10' = gap first, then the 4 balls (ooooooxxxx) – owner decision
 2026-10-11 – Darstellung segments show bold glyphs '123' (numbers) and 'OOO' (balls, black/white) instead of words; aria-labels keep the words – owner decision
 2026-10-11 – Darstellung 'Kugeln' segment shows three real balls (same colours as in the task), not the letters OOO – owner decision
+2026-10-11 – Darstellung balls glyph is monochrome (white, grey, black balls), not blue – owner decision

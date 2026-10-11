@@ -497,4 +497,8 @@ strong { font-weight: var(--weight-medium); }
 /* Display choice shown as glyphs: 123 = numbers, three real balls (same look as in the task) = balls. */
 .segmented .glyph { font-size: var(--text-lg); font-weight: var(--weight-medium); letter-spacing: 0.12em; }
 .glyph-balls { display: inline-flex; gap: 0.3rem; }
-.glyph-balls .ball { width: 1.05rem; }
+.glyph-balls .ball { width: 1.05rem; border: 1px solid var(--text); }
+/* Monochrome on purpose: white, grey, black – the option must not look like a colour choice. */
+.glyph-balls .g1 { background: var(--surface); }
+.glyph-balls .g2 { background: var(--text-muted); }
+.glyph-balls .g3 { background: var(--text); }

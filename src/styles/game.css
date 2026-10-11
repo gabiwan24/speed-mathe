@@ -237,8 +237,12 @@ strong { font-weight: var(--weight-medium); }
   touch-action: manipulation;
   transition: background var(--dur-fast) var(--ease-out);
 }
-.keypad button:hover { background: var(--surface-2); }
+.keypad button:not(.key-ok):hover { background: var(--surface-2); }   /* never on OK: its dark-mode ink is black */
 .keypad button.tap { animation: tap var(--dur-base) var(--ease-out); }
+.keypad .key-ok.tap { animation-name: tap-ok; }
+@keyframes tap-ok {
+  from { background: var(--cta-hover); }
+}
 @keyframes tap {
   from { background: var(--border); }
 }
@@ -251,7 +255,8 @@ strong { font-weight: var(--weight-medium); }
   font-size: var(--text-xl);
 }
 .keypad .key-ok:hover:not(:disabled) { background: var(--cta-hover); border-color: var(--cta-hover); }
-.keypad .key-ok:disabled { opacity: .35; }
+/* Disabled OK: explicit neutral colours, not opacity – fading the CTA left black ink on dark blue in dark mode. */
+.keypad .key-ok:disabled { opacity: 1; background: var(--surface-2); color: var(--text-muted); border-color: var(--border-strong); }
 
 /* ---------- result ---------- */
 
